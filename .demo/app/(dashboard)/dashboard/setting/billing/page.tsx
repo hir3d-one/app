@@ -1,0 +1,10 @@
+import { SubscriptionSection } from "@/components/dashboard/subscription-section";
+
+export default function BillingPage() {
+  // SubscriptionSection fetches its own data client-side using useQuery
+  return (
+    <div className="px-4">
+      <SubscriptionSection />
+    </div>
+  );
+}
