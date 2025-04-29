@@ -30,7 +30,7 @@ export default function LoginPage() {
             fetchOptions: {
                 onSuccess: () => {
                     toast.success("Successfully signed in with passkey");
-                    router.push("/dashboard");
+                    router.push("/account");
                 },
                 // Optional: onError for specific handling
                 // onError: ({ error }) => { toast.error(error.message || "One-Tap failed"); },

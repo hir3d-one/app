@@ -4,9 +4,9 @@ import { redirect } from "next/navigation";
 import { Session } from "@/lib/auth-types"; // Import Session type
 
 // Import the new section components
-import { SessionsSection } from "@/components/dashboard/sessions-section";
-import { PasskeysSection } from "@/components/dashboard/passkeys-section";
-import { TwoFactorSection } from "@/components/dashboard/two-factor-section";
+import { SessionsSection } from "@/components/account/sessions-section";
+import { PasskeysSection } from "@/components/account/passkeys-section";
+import { TwoFactorSection } from "@/components/account/two-factor-section";
 
 // Define ActiveSession type matching SessionsSection or import if exported
 interface ActiveSession {

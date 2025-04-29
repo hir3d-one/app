@@ -1,50 +1,30 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import UserCard from "./user-card";
-import { OrganizationCard } from "./organization-card";
-import AccountSwitcher from "@/components/account-switch";
+import { AppSidebar } from "@/components/app-sidebar"
+import { ChartAreaInteractive } from "@/components/chart-area-interactive"
+import { DataTable } from "@/components/data-table"
+import { SectionCards } from "@/components/section-cards"
+import { SiteHeader } from "@/components/site-header"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 
-export default async function DashboardPage() {
-	const [session, activeSessions, deviceSessions, organization, subscriptions] =
-		await Promise.all([
-			auth.api.getSession({
-				headers: await headers(),
-			}),
-			auth.api.listSessions({
-				headers: await headers(),
-			}),
-			auth.api.listDeviceSessions({
-				headers: await headers(),
-			}),
-			auth.api.getFullOrganization({
-				headers: await headers(),
-			}),
-			auth.api.listActiveSubscriptions({
-				headers: await headers(),
-			}),
-		]).catch((e) => {
-			console.log(e);
-			throw redirect("/sign-in");
-		});
-	return (
-		<div className="w-full">
-			<div className="flex gap-4 flex-col">
-				<AccountSwitcher
-					sessions={JSON.parse(JSON.stringify(deviceSessions))}
-				/>
-				<UserCard
-					session={JSON.parse(JSON.stringify(session))}
-					activeSessions={JSON.parse(JSON.stringify(activeSessions))}
-					subscription={subscriptions.find(
-						(sub) => sub.status === "active" || sub.status === "trialing",
-					)}
-				/>
-				<OrganizationCard
-					session={JSON.parse(JSON.stringify(session))}
-					activeOrganization={JSON.parse(JSON.stringify(organization))}
-				/>
-			</div>
-		</div>
-	);
+import data from "./data.json"
+
+export default function Page() {
+  return (
+    <SidebarProvider>
+      <AppSidebar variant="inset" />
+      <SidebarInset>
+        <SiteHeader />
+        <div className="flex flex-1 flex-col">
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              <SectionCards />
+              <div className="px-4 lg:px-6">
+                <ChartAreaInteractive />
+              </div>
+              <DataTable data={data} />
+            </div>
+          </div>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
+  )
 }

@@ -100,7 +100,7 @@ function SignInBox() {
 						{
 							email: email,
 							password: password,
-							callbackURL: "/dashboard",
+							callbackURL: "/account",
 							rememberMe,
 						},
 						{
@@ -125,7 +125,7 @@ function SignInBox() {
 				onClick={async () => {
 					await signIn.social({
 						provider: "google",
-						callbackURL: "/dashboard",
+						callbackURL: "/account",
 					});
 				}}
 			>
@@ -161,7 +161,7 @@ function SignInBox() {
 					await signIn.passkey({
 						fetchOptions: {
 							onSuccess(context) {
-								router.push("/dashboard");
+								router.push("/account");
 							},
 							onError(context) {
 								toast.error(context.error.message);

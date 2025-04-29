@@ -56,7 +56,7 @@ type User = {
 	role: "admin" | "user";
 };
 
-export default function AdminDashboard() {
+export default function AdminAccount() {
 	const queryClient = useQueryClient();
 	const router = useRouter();
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -148,7 +148,7 @@ export default function AdminDashboard() {
 		try {
 			await client.admin.impersonateUser({ userId: id });
 			toast.success("Impersonated user");
-			router.push("/dashboard");
+			router.push("/account");
 		} catch (error: any) {
 			toast.error(error.message || "Failed to impersonate user");
 		} finally {
@@ -185,7 +185,7 @@ export default function AdminDashboard() {
 			<Toaster richColors />
 			<Card>
 				<CardHeader className="flex flex-row items-center justify-between">
-					<CardTitle className="text-2xl">Admin Dashboard</CardTitle>
+					<CardTitle className="text-2xl">Admin Account</CardTitle>
 					<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
 						<DialogTrigger asChild>
 							<Button>

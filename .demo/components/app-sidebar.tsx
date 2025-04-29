@@ -4,7 +4,7 @@ import {
   IconCamera,
   IconChartBar,
   IconCopy,
-  IconDashboard,
+  IconAccount,
   IconDatabase,
   IconFileAi,
   IconFileDescription,
@@ -46,53 +46,53 @@ import { User } from "@prisma/client";
 const data = {
   navMain: [
     {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: IconDashboard,
+      title: "Account",
+      url: "/account",
+      icon: IconAccount,
     },
     {
       title: "Account",
-      url: "/dashboard/profile",
+      url: "/account/profile",
       icon: IconUserCircle,
     },
     {
       title: "Subscriptions",
-      url: "/dashboard/subscriptions",
+      url: "/account/subscriptions",
       icon: IconMoneybagPlus,
     },
     {
       title: "Setting",
-      url: "/dashboard/setting",
+      url: "/account/setting",
       icon: IconSettings,
       items: [
         {
           title: "Profile",
-          url: "/dashboard/setting/profile",
+          url: "/account/setting/profile",
           icon: IconUserCircle,
         },
         {
           title: "Security",
-          url: "/dashboard/setting/security",
+          url: "/account/setting/security",
           icon: IconShieldLock,
         },
         {
           title: "Notifications",
-          url: "/dashboard/setting/notifications",
+          url: "/account/setting/notifications",
           icon: IconBell,
         },
         {
           title: "Appearance",
-          url: "/dashboard/setting/preference",
+          url: "/account/setting/preference",
           icon: IconDeviceDesktop,
         },
         {
           title: "API Keys",
-          url: "/dashboard/setting/api-keys",
+          url: "/account/setting/api-keys",
           icon: IconKey,
         },
         {
           title: "Billing",
-          url: "/dashboard/setting/billing",
+          url: "/account/setting/billing",
           icon: IconCreditCard,
         },
       ],
@@ -176,7 +176,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
             >
               <a href="#">
                 <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Dashboard</span>
+                <span className="text-base font-semibold">Account</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

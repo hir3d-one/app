@@ -24,14 +24,14 @@ export default async function page() {
               <ModeToggle />
               {session?.user ? (
                 <div className="flex gap-2 items-center">
-                  <a href="/dashboard">
+                  <a href="/account">
                     <Button
                       className="rounded-sm flex items-center gap-2"
                       variant="outline"
                       size="default"
                     >
                       <Layout className="w-4 h-4" />
-                      Dashboard
+                      Account
                     </Button>
                   </a>
                   <LogoutButton />

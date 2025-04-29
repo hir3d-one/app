@@ -174,7 +174,7 @@ function Component(props: {
 								onClick={async () => {
 									await client.subscription.cancel(
 										{
-											returnUrl: "/dashboard",
+											returnUrl: "/account",
 										},
 										{
 											onError: (ctx) => {

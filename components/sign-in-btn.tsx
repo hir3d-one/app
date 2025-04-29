@@ -10,7 +10,7 @@ export async function SignInButton() {
 
 	return (
 		<Link
-			href={session?.session ? "/dashboard" : "/sign-in"}
+			href={session?.session ? "/account" : "/sign-in"}
 			className="flex justify-center"
 		>
 			<Button className="gap-2  justify-between" variant="default">
@@ -36,7 +36,7 @@ export async function SignInButton() {
 						<path fill="currentColor" d="M2 3h20v18H2zm18 16V7H4v12z"></path>
 					</svg>
 				)}
-				<span>{session?.session ? "Dashboard" : "Sign In"}</span>
+				<span>{session?.session ? "Account" : "Sign In"}</span>
 			</Button>
 		</Link>
 	);
@@ -54,7 +54,7 @@ export async function SignInFallback() {
 	const guessIsSignIn = checkOptimisticSession(await headers());
 	return (
 		<Link
-			href={guessIsSignIn ? "/dashboard" : "/sign-in"}
+			href={guessIsSignIn ? "/account" : "/sign-in"}
 			className="flex justify-center"
 		>
 			<Button className="gap-2  justify-between" variant="default">
@@ -80,7 +80,7 @@ export async function SignInFallback() {
 						<path fill="currentColor" d="M2 3h20v18H2zm18 16V7H4v12z"></path>
 					</svg>
 				)}
-				<span>{guessIsSignIn ? "Dashboard" : "Sign In"}</span>
+				<span>{guessIsSignIn ? "Account" : "Sign In"}</span>
 			</Button>
 		</Link>
 	);
