@@ -7,9 +7,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 
 export function Wrapper(props: { children: React.ReactNode }) {
-	// If route is /dashboard, only render the children
+	// If route is /dashboard/*, only render the children
 	const pathname = usePathname();
-	if (pathname === "/dashboard") {
+	if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) {
 		return props.children;
 	} else {
 	return (

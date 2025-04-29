@@ -17,6 +17,9 @@ import {
   SearchIcon,
   SettingsIcon,
   UsersIcon,
+  UserCircleIcon,
+  CreditCardIcon,
+  BellIcon,
 } from "lucide-react"
 
 import { NavDocuments } from "@/components/nav-documents"
@@ -32,8 +35,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { TeamSwitcher } from "@/components/team-switcher"
+import { OrganisationsSwitcher } from "@/components/team-switcher"
 import { Logo } from "@/components/logo"
+import { useSession } from "@/lib/auth-client"
 
 const data = {
   user: {
@@ -118,19 +122,19 @@ const data = {
   ],
   navSecondary: [
     {
-      title: "Settings",
-      url: "#",
-      icon: SettingsIcon,
+      title: "Account",
+      url: "/dashboard/account",
+      icon: UserCircleIcon,
     },
     {
-      title: "Get Help",
-      url: "#",
-      icon: HelpCircleIcon,
+      title: "Billing",
+      url: "/dashboard/billing",
+      icon: CreditCardIcon,
     },
     {
-      title: "Search",
-      url: "#",
-      icon: SearchIcon,
+      title: "Notifications",
+      url: "/dashboard/notifications",
+      icon: BellIcon,
     },
   ],
   documents: [
@@ -153,16 +157,11 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: session, isPending } = useSession();
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <TeamSwitcher
-          teams={[
-            { name: "Acme Inc.", logo: Logo, plan: "Pro" },
-            { name: "Globex Corp.", logo: Logo, plan: "Free" },
-            { name: "Umbrella LLC", logo: Logo, plan: "Enterprise" },
-          ]}
-        />
+        <OrganisationsSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
@@ -170,7 +169,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        {!isPending && session ? (
+          <NavUser
+            user={{
+              name: session.user.name || "",
+              email: session.user.email,
+              avatar: session.user.image || "",
+            }}
+          />
+        ) : null}
       </SidebarFooter>
     </Sidebar>
   )

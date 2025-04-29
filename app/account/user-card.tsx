@@ -135,7 +135,7 @@ export default function UserCard(props: {
 						</div>
 						<EditUserDialog />
 					</div>
-					<div className="flex items-center justify-between">
+					{/* <div className="flex items-center justify-between">
 						<div>
 							<SubscriptionTierLabel
 								tier={subscription?.plan?.toLowerCase() as "starter"}
@@ -145,7 +145,7 @@ export default function UserCard(props: {
 							currentPlan={subscription?.plan?.toLowerCase() as "starter"}
 							isTrial={subscription?.status === "trialing"}
 						/>
-					</div>
+					</div> */}
 				</div>
 
 				{session?.user.emailVerified ? null : (

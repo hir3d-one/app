@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -26,8 +26,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Edit, Loader2, Upload, X } from "lucide-react";
 import { Session, User } from "better-auth";
-import { client } from "@/lib/auth-client";
+import { client, useSession } from "@/lib/auth-client";
 import { toast } from "sonner";
+import React from "react";
 
 async function convertImageToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -38,18 +39,35 @@ async function convertImageToBase64(file: File): Promise<string> {
   });
 }
 
-export function ProfileSection({
-  session,
-}: {
-  session: { user: User; session: Session };
-}) {
-  const [name, setName] = useState<string>(session.user.name || "");
-  const [email, setEmail] = useState(session.user.email);
+export function ProfileSection() {
+  const { data: session, isLoading } = useSession();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [open, setOpen] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
+  const [isLoadingTwoFa, setIsLoadingTwoFa] = useState<boolean>(false);
+  const [twoFaPassword, setTwoFaPassword] = useState<string>("");
+  const [twoFactorDialog, setTwoFactorDialog] = useState<boolean>(false);
+  const [twoFactorVerifyURI, setTwoFactorVerifyURI] = useState<string>("");
+  const [isSignOut, setIsSignOut] = useState<boolean>(false);
+  const [emailVerificationPending, setEmailVerificationPending] =
+    useState<boolean>(false);
   const router = useRouter();
+
+  // Synchronise name and email when session data arrives
+  React.useEffect(() => {
+    if (session) {
+      setName(session.user.name || "");
+      setEmail(session.user.email);
+    }
+  }, [session]);
+
+  // Early return after all hooks to maintain hook order
+  if (isLoading || !session) {
+    return <div>Loading...</div>;
+  }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -64,32 +82,32 @@ export function ProfileSection({
   };
 
   const handleUpdateUser = async () => {
-			setIsLoading(true);
-			await client.updateUser(
-				{
-					image: image ? await convertImageToBase64(image) : undefined,
-					name: name !== session.user.name ? name : undefined,
-				},
-				{
-					fetchOptions: {
-						onSuccess: () => {
-							toast.success("User updated successfully");
-							router.refresh();
-							setImage(null);
-							setImagePreview(null);
-              setOpen(false);
-						},
-						onError: (error) => {
-              const message = error?.error?.message || "Failed to update user";
-							toast.error(message);
-						},
-            onSettled: () => {
-              setIsLoading(false);
-            }
-					},
-				},
-			);
-		};
+    setIsUpdating(true);
+    await client.updateUser(
+      {
+        image: image ? await convertImageToBase64(image) : undefined,
+        name: name !== session.user.name ? name : undefined,
+      },
+      {
+        fetchOptions: {
+          onSuccess: () => {
+            toast.success("User updated successfully");
+            router.refresh();
+            setImage(null);
+            setImagePreview(null);
+            setOpen(false);
+          },
+          onError: (error) => {
+            const message = error?.error?.message || "Failed to update user";
+            toast.error(message);
+          },
+          onSettled: () => {
+            setIsUpdating(false);
+          }
+        },
+      },
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -241,8 +259,8 @@ export function ProfileSection({
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setOpen(false)} className="border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300">Cancel</Button>
-                  <Button type="submit" onClick={handleUpdateUser} disabled={isLoading} className="bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200">
-                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  <Button type="submit" onClick={handleUpdateUser} disabled={isUpdating} className="bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200">
+                    {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Save changes
                   </Button>
                 </DialogFooter>

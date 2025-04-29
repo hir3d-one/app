@@ -16,6 +16,7 @@ import { client } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { Subscription } from "@better-auth/stripe";
+import { Component as ChangePlanDialog } from "@/app/account/change-plan";
 
 // Helper to format date
 const formatDate = (dateString: string | null | undefined) => {
@@ -39,19 +40,24 @@ export function SubscriptionSection() {
           throw: false, // Don't throw on error, handle it below
         },
       });
-      if (res.error) {
+      if ('error' in res && res.error) {
         console.error("Error fetching subscriptions:", res.error);
         toast.error(res.error.message || "Failed to load subscription details.");
         return []; // Return empty array on error
       }
-      return res;
+      // If res is an array, return it; otherwise unwrap data property
+      if (Array.isArray(res)) {
+        return res;
+      }
+      return res.data ?? [];
     },
     initialData: [], // Start with empty array
     refetchOnWindowFocus: false, // Optional: disable refetch on window focus
   });
 
-  // Assuming user has at most one active/trialing subscription for this simplified view
-  const activeSubscription = subscriptions?.find(
+  // Guarantee subscriptions is an array before finding
+  const subscriptionList = Array.isArray(subscriptions) ? subscriptions : [];
+  const activeSubscription = subscriptionList.find(
     (sub) => sub.status === "active" || sub.status === "trialing"
   );
 
@@ -132,9 +138,11 @@ export function SubscriptionSection() {
             )}
           </div>
         ) : (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center py-4">
-            You are currently on the Free plan.
-          </p>
+          <div className="max-w-md mx-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 space-y-4 text-center">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Free Plan</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Upgrade to unlock premium features and priority support.</p>
+            <ChangePlanDialog currentPlan={"starter"} isTrial={false} />
+          </div>
         )}
       </CardContent>
       <CardFooter className="border-t border-zinc-100 dark:border-zinc-800 px-6 py-4 flex justify-end">
