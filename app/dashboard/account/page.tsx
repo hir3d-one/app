@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { SiteHeader } from "@/components/site-header";
-import UserCard from "@/app/account/user-card";
+import UserCardClient from "./UserCardClient";
 import { OrganizationCard } from "@/app/account/organization-card";
 
 export default async function AccountPage() {
@@ -25,7 +25,7 @@ export default async function AccountPage() {
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-col w-full p-4 space-y-4">
-          <UserCard
+          <UserCardClient
             session={JSON.parse(JSON.stringify(session))}
             activeSessions={JSON.parse(JSON.stringify(activeSessions))}
             subscription={

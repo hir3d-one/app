@@ -30,6 +30,25 @@ import {
 } from "@/components/ui/sidebar"
 import { useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useState, useEffect } from "react";
+
+function NavUserSkeleton() {
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <SidebarMenuButton size="lg" className="flex items-center gap-2">
+          <Skeleton className="h-8 w-8 rounded-lg" />
+          <div className="flex flex-col flex-1 gap-1">
+            <Skeleton className="h-3 w-20 rounded" />
+            <Skeleton className="h-2 w-28 rounded" />
+          </div>
+          <Skeleton className="ml-auto size-4 rounded" />
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  );
+}
 
 export function NavUser({
   user,
@@ -40,8 +59,12 @@ export function NavUser({
     avatar: string
   }
 }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
   const { isMobile } = useSidebar()
   const router = useRouter()
+
+  if (!mounted) return <NavUserSkeleton />;
 
   return (
     <SidebarMenu>
