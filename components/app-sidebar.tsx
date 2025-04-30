@@ -48,31 +48,11 @@ const data = {
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
-    {
-      title: "Dashboard",
-      url: "#",
-      icon: LayoutDashboardIcon,
-    },
-    {
-      title: "Lifecycle",
-      url: "#",
-      icon: ListIcon,
-    },
-    {
-      title: "Analytics",
-      url: "#",
-      icon: BarChartIcon,
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: FolderIcon,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: UsersIcon,
-    },
+    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboardIcon },
+    { title: "Lifecycle", url: "/dashboard/lifecycle", icon: ListIcon },
+    { title: "Analytics", url: "/dashboard/analytics", icon: BarChartIcon },
+    { title: "Projects", url: "/dashboard/projects", icon: FolderIcon },
+    { title: "Team", url: "/dashboard/team", icon: UsersIcon },
   ],
   navClouds: [
     {
