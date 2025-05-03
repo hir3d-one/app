@@ -39,12 +39,12 @@ const dialect = new PostgresDialect({
 });
 
 const PROFESSION_PRICE_ID = {
-	default: "price_1QxWZ5LUjnrYIrml5Dnwnl0X",
-	annual: "price_1QxWZTLUjnrYIrmlyJYpwyhz",
+	default: "price_1RJXElCAN5jBx3Nikjp9KHJn",
+	annual: "price_1RJXNHCAN5jBx3NiUBHoiTc6",
 };
 const STARTER_PRICE_ID = {
-	default: "price_1QxWWtLUjnrYIrmleljPKszG",
-	annual: "price_1QxWYqLUjnrYIrmlonqPThVF",
+	default: "price_1RJXEaCAN5jBx3NiIJd2rtw7",
+	annual: "price_1RJXMZCAN5jBx3NiuaSeQnam",
 };
 
 export const auth = betterAuth({
@@ -178,6 +178,7 @@ export const auth = betterAuth({
 		stripe({
 			stripeClient: new Stripe(process.env.STRIPE_KEY || "sk_test_"),
 			stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+			createCustomer: true,
 			subscription: {
 				enabled: true,
 				plans: [
