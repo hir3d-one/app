@@ -64,6 +64,15 @@ export function SubscriptionSection() {
     return subscriptionPlans.find(p => p.name.toLowerCase() === activeSubscription.plan?.toLowerCase());
   }, [activeSubscription]);
 
+  // Determine if the active subscription is on an annual plan
+  const currentPlanIsAnnual = React.useMemo(() => {
+    if (!activeSubscription || !activePlanDetails) return false;
+    // Assuming activeSubscription contains the current stripePriceId
+    // Check if this price ID matches the annual price ID in our config
+    // Replace 'stripePriceId' with the actual field name if different
+    return activeSubscription.stripePriceId === activePlanDetails.stripePriceIdAnnual;
+  }, [activeSubscription, activePlanDetails]);
+
   return (
     <Card className="border-zinc-200 dark:border-zinc-800 dark:bg-transparent">
       <CardHeader>
@@ -138,6 +147,7 @@ export function SubscriptionSection() {
                    <ChangePlanDialog 
                      currentPlan={activeSubscription.plan?.toLowerCase()} 
                      isTrial={activeSubscription.status === 'trialing'}
+                     currentPlanIsAnnual={currentPlanIsAnnual}
                    />
                 </div>
               </div>
