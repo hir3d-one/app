@@ -12,9 +12,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { client } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { subscriptionPlans, SubscriptionPlan } from "@/lib/config/plans";
-import { ArrowUpFromLine, CreditCard, RefreshCcw } from "lucide-react";
+import { ArrowUpFromLine, CreditCard, RefreshCcw, Loader2 } from "lucide-react";
 import { useId, useState, useEffect } from "react";
 import { toast } from "sonner";
+import { Separator } from "@/components/ui/separator";
 
 const formatCurrency = (amount: number, currency = 'eur') => {
 	try {
@@ -33,22 +34,25 @@ function Component(props: {
 	currentPlan?: string;
 	isTrial?: boolean;
 }) {
-	const defaultPlanId = 
-		subscriptionPlans.find(p => p.isFeatured)?.id || 
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const displayPlans = subscriptionPlans.filter(
+		(plan) => plan.id !== props.currentPlan?.toLowerCase()
+	);
+	const defaultPlanId =
+		displayPlans.find((p) => p.isFeatured)?.id ||
+		displayPlans[0]?.id ||
 		subscriptionPlans[0]?.id ||
-		'';
+		"";
 
-	const [selectedPlanId, setSelectedPlanId] = useState(props.currentPlan?.toLowerCase() || defaultPlanId);
+	const [selectedPlanId, setSelectedPlanId] = useState(defaultPlanId);
 	const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | undefined>(() => 
-		subscriptionPlans.find(p => p.id === selectedPlanId)
+		subscriptionPlans.find((p) => p.id === selectedPlanId)
 	);
 	const id = useId();
 
 	useEffect(() => {
-		setSelectedPlan(subscriptionPlans.find(p => p.id === selectedPlanId));
+		setSelectedPlan(subscriptionPlans.find((p) => p.id === selectedPlanId));
 	}, [selectedPlanId]);
-
-	const displayPlans = subscriptionPlans;
 
 	return (
 		<Dialog>
@@ -98,7 +102,7 @@ function Component(props: {
 						value={selectedPlanId}
 						onValueChange={setSelectedPlanId}
 					>
-						{displayPlans.map((plan, index) => (
+						{displayPlans.map((plan: SubscriptionPlan, index: number) => (
 							<div
 								key={plan.id}
 								className={cn(
@@ -133,63 +137,66 @@ function Component(props: {
 						</p>
 					</div>
 
-					<div className="grid gap-2">
+					<div className="flex flex-col gap-4">
 						<Button
 							type="button"
 							className="w-full"
-							disabled={
-								(selectedPlanId === props.currentPlan?.toLowerCase() && !props.isTrial)
-							}
+							disabled={isSubmitting}
 							onClick={async () => {
 								if (!selectedPlan) {
 									toast.error("Please select a valid plan.");
 									return;
 								}
-								await client.subscription.upgrade(
-									{
-										plan: selectedPlan.name,
-									},
-									{
-										onError: (ctx) => {
-											toast.error(ctx.error.message);
-										},
-									},
-								);
+								setIsSubmitting(true);
+								try {
+									// Update the existing subscription plan
+									await client.subscription.update(
+										{ plan: selectedPlan.name },
+										{ onError: (ctx) => { toast.error(ctx.error.message); } }
+									);
+									toast.success(`Plan changed to ${selectedPlan.name}`);
+								} catch (error) {
+									console.error("Error updating subscription:", error);
+								} finally {
+									setIsSubmitting(false);
+								}
 							}}
 						>
-							{(() => {
-								const isCurrent = selectedPlanId === props.currentPlan?.toLowerCase();
-								if (isCurrent) return props.isTrial ? "Activate Plan" : "Current Plan";
-								
-								const currentPlanIndex = subscriptionPlans.findIndex(p => p.id === props.currentPlan?.toLowerCase());
-								const selectedPlanIndex = subscriptionPlans.findIndex(p => p.id === selectedPlanId);
-
-								if (props.currentPlan === undefined || selectedPlanIndex > currentPlanIndex) return "Upgrade";
-								if (selectedPlanIndex < currentPlanIndex) return "Downgrade";
-
-								return "Change Plan";
-							})()}
+							{isSubmitting ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : null}
+							{selectedPlan
+								? (() => {
+									const currentPlanIndex = subscriptionPlans.findIndex(
+										(p) => p.id === props.currentPlan?.toLowerCase()
+									);
+									const selectedPlanIndex = subscriptionPlans.findIndex(
+										(p) => p.id === selectedPlanId
+									);
+									if (!props.currentPlan) return "Subscribe";
+									if (selectedPlanIndex > currentPlanIndex) return "Upgrade";
+									return "Downgrade";
+								})()
+								: "Select Plan"}
 						</Button>
 						{props.currentPlan && (
-							<Button
-								type="button"
-								variant="destructive"
-								className="w-full"
-								onClick={async () => {
-									await client.subscription.cancel(
-										{
-											returnUrl: "/account",
-										},
-										{
-											onError: (ctx) => {
-												toast.error(ctx.error.message);
-											},
-										},
-									);
-								}}
-							>
-								Cancel Plan
-							</Button>
+							<>
+								<Separator className="my-2" />
+								<p className="text-sm text-center text-zinc-500 dark:text-zinc-400">
+									or cancel your current plan
+								</p>
+								<Button
+									type="button"
+									variant="destructive"
+									className="w-full"
+									onClick={async () => {
+										await client.subscription.cancel(
+											{ returnUrl: "/account" },
+											{ onError: (ctx) => { toast.error(ctx.error.message); } }
+										);
+									}}
+								>
+									Cancel Plan
+								</Button>
+							</>
 						)}
 					</div>
 				</form>
