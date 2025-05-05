@@ -20,6 +20,15 @@ import { nextCookies } from "better-auth/next-js";
 import { passkey } from "better-auth/plugins/passkey";
 import { stripe } from "@better-auth/stripe";
 import { Stripe } from "stripe";
+import { apiKey } from "better-auth/plugins";
+import {
+	PlusPlan,
+	ProfessionalPlan,
+	GoldPlan,
+	DiamondPlan,
+	PlatinumPlan,
+	subscriptionPlans
+} from "./config/plans"; // Import plans
 
 const from = process.env.BETTER_AUTH_EMAIL || "delivered@resend.dev";
 const to = process.env.TEST_EMAIL || "";
@@ -38,14 +47,15 @@ const dialect = new PostgresDialect({
 	pool,
 });
 
-const PROFESSION_PRICE_ID = {
-	default: "price_1RJXElCAN5jBx3Nikjp9KHJn",
-	annual: "price_1RJXNHCAN5jBx3NiUBHoiTc6",
-};
-const STARTER_PRICE_ID = {
-	default: "price_1RJXEaCAN5jBx3NiIJd2rtw7",
-	annual: "price_1RJXMZCAN5jBx3NiuaSeQnam",
-};
+// Remove old hardcoded price IDs if they are now fully managed in plans.ts
+// const PROFESSION_PRICE_ID = {
+// 	default: "price_1RJXElCAN5jBx3Nikjp9KHJn",
+// 	annual: "price_1RJXNHCAN5jBx3NiUBHoiTc6",
+// };
+// const STARTER_PRICE_ID = {
+// 	default: "price_1RJXEaCAN5jBx3NiIJd2rtw7",
+// 	annual: "price_1RJXMZCAN5jBx3NiuaSeQnam",
+// };
 
 export const auth = betterAuth({
 	appName: "Better Auth Demo",
@@ -181,25 +191,68 @@ export const auth = betterAuth({
 			createCustomer: true,
 			subscription: {
 				enabled: true,
-				plans: [
-					{
-						name: "Starter",
-						priceId: STARTER_PRICE_ID.default,
-						annualDiscountPriceId: STARTER_PRICE_ID.annual,
-						freeTrial: {
-							days: 7,
+				organization: {
+					enabled: true,
+				},
+				authorizeReference: async ({ user, session, referenceId, action }) => {
+					return true;
+				},
+				// Map plans from config to better-auth structure
+				plans: subscriptionPlans
+					.map(plan => ({
+						name: plan.name,
+						priceId: plan.stripePriceId, // Monthly/Default price ID
+						annualDiscountPriceId: plan.stripePriceIdAnnual, // Annual price ID
+						// Add free trial config specifically for the starter/pro plan if needed
+						...(plan.id === PlusPlan.id && {
+							freeTrial: {
+								days: 7,
+								onTrialStart: async (subscription: any) => {
+									console.log(`Trial started for subscription: ${subscription.id} (${plan.name})`);
+								},
+								onTrialEnd: async ({ subscription }: { subscription: any }) => {
+									console.log(`Trial ending soon for: ${subscription.id} (${plan.name})`);
+								},
+								onTrialExpired: async (subscription: any) => {
+									console.log(`Trial expired for subscription: ${subscription.id} (${plan.name})`);
+								},
+							},
+						})
+					})),
+				/* Example of original hardcoded plans for reference:
+					plans: [
+						{
+							name: "Starter",
+							priceId: STARTER_PRICE_ID.default,
+							annualDiscountPriceId: STARTER_PRICE_ID.annual,
+							freeTrial: { days: 7, ... },
 						},
-					},
-					{
-						name: "Professional",
-						priceId: PROFESSION_PRICE_ID.default,
-						annualDiscountPriceId: PROFESSION_PRICE_ID.annual,
-					},
-					{
-						name: "Enterprise",
-					},
-				],
+						{
+							name: "Professional",
+							priceId: PROFESSION_PRICE_ID.default,
+							annualDiscountPriceId: PROFESSION_PRICE_ID.annual,
+						},
+						{
+							name: "Enterprise",
+						},
+					], 
+				*/
+				onSubscriptionComplete: async ({ event, subscription, stripeSubscription, plan }) => {
+					console.log("Subscription completed", subscription.id);
+				},
+				onSubscriptionUpdate: async ({ event, subscription }) => {
+					console.log("Subscription updated", subscription.id);
+				},
+				onSubscriptionCancel: async ({ subscription, cancellationDetails, stripeSubscription, event }) => {
+					console.log("Subscription canceled", subscription.id, cancellationDetails);
+				},
+				onSubscriptionDeleted: async ({ event, subscription, stripeSubscription }) => {
+					console.log("Subscription deleted", subscription.id);
+				},
 			},
+		}),
+		apiKey({
+			disableSessionForAPIKeys: true,
 		}),
 	],
 	trustedOrigins: ["exp://"],

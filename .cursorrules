@@ -1,0 +1,30 @@
+ # General
+- Always prefer server functions over writing api routes
+- When adding new comonents, always also add skeleton loaders too
+
+
+ # Git
+ Git commit messages must follow the conventional commit format
+ Format: <type>(<scope>): <description>
+ Example: feat(auth): add password reset functionality
+ Types: feat, fix, docs, style, refactor, test, chore, perf
+ Scope is optional but should be relevant to the change
+ Description should be clear and concise in present tense
+ Full commit message format:
+ <type>(<scope>): <description>
+ <BLANK LINE>
+ <body>
+ <BLANK LINE>
+ <footer>
+
+ Breaking changes must be noted in the commit header with !
+ Example: feat!(api): change authentication endpoints
+
+ Commit messages should not exceed 72 characters in the header
+ Body lines should not exceed 100 characters
+
+ Commit messages should:
+ - Use imperative mood ("add" not "added" or "adds")
+ - Not end with a period
+ - Provide context in the body when needed
+ - Reference issues and PRs in footer when relevant

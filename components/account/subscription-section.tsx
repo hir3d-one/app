@@ -1,22 +1,21 @@
 "use client";
 
-import { useState } from "react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ExternalLink, Settings } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { client } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
-import { Subscription } from "@better-auth/stripe";
 import { Component as ChangePlanDialog } from "@/app/account/change-plan";
+import React from "react";
+import { subscriptionPlans, SubscriptionPlan } from "@/lib/config/plans";
+import { Check } from "lucide-react";
 
 // Helper to format date
 const formatDate = (dateString: string | null | undefined) => {
@@ -29,8 +28,6 @@ const formatDate = (dateString: string | null | undefined) => {
 }
 
 export function SubscriptionSection() {
-  const [isPortalLoading, setIsPortalLoading] = useState(false);
-
   // Fetch subscription data using useQuery, similar to demo
   const { data: subscriptions, isLoading: isLoadingSubscriptions } = useQuery({
     queryKey: ["subscriptions"],
@@ -51,46 +48,27 @@ export function SubscriptionSection() {
       }
       return res.data ?? [];
     },
-    initialData: [], // Start with empty array
     refetchOnWindowFocus: false, // Optional: disable refetch on window focus
   });
 
-  // Guarantee subscriptions is an array before finding
-  const subscriptionList = Array.isArray(subscriptions) ? subscriptions : [];
-  const activeSubscription = subscriptionList.find(
-    (sub) => sub.status === "active" || sub.status === "trialing"
-  );
+  // Ensure subscriptions is always an array and find the active one
+  const activeSubscription = React.useMemo(() => {
+    const subs = Array.isArray(subscriptions) ? subscriptions : [];
+    return subs.find((sub) => sub.status === "active" || sub.status === "trialing");
+  }, [subscriptions]);
 
-  const handleManageBilling = async () => {
-    setIsPortalLoading(true);
-    const res = await client.subscription.createBillingPortalSession(
-        { returnUrl: window.location.href }, // Return to the current page
-        {
-            fetchOptions: {
-                onSuccess: (data) => {
-                    if (data.url) {
-                        window.location.href = data.url; // Redirect to Stripe Portal
-                    } else {
-                        toast.error("Could not retrieve billing portal URL.");
-                        setIsPortalLoading(false);
-                    }
-                },
-                onError: (error) => {
-                    const message = error?.error?.message || "Failed to open billing portal.";
-                    toast.error(message);
-                    setIsPortalLoading(false);
-                }
-            }
-        }
-    );
-    // Note: No need to set isLoading false on success due to redirect
-  };
+  // Find the detailed plan object matching the active subscription
+  const activePlanDetails = React.useMemo(() => {
+    if (!activeSubscription?.plan) return null;
+    // Match based on plan NAME stored in the subscription object
+    return subscriptionPlans.find(p => p.name.toLowerCase() === activeSubscription.plan?.toLowerCase());
+  }, [activeSubscription]);
 
   return (
     <Card className="border-zinc-200 dark:border-zinc-800 dark:bg-transparent">
       <CardHeader>
         <CardTitle className="text-zinc-900 dark:text-zinc-100">
-          Subscription
+          Current Plan
         </CardTitle>
         <CardDescription className="text-zinc-500 dark:text-zinc-400">
           Manage your plan and billing details.
@@ -98,67 +76,127 @@ export function SubscriptionSection() {
       </CardHeader>
       <CardContent>
         {isLoadingSubscriptions ? (
-          <div className="flex justify-center items-center h-20">
-            <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
-          </div>
-        ) : activeSubscription ? (
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Current Plan:</span>
-              <Badge variant="secondary" className="capitalize">
-                {activeSubscription.plan || "N/A"}
-              </Badge>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Status:</span>
-              <Badge
-                variant={activeSubscription.status === "active" || activeSubscription.status === "trialing" ? "success" : "outline"}
-                className="capitalize"
-              >
-                {activeSubscription.status}
-              </Badge>
-            </div>
-            {activeSubscription.status === "trialing" && activeSubscription.trialEnd && (
-                <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Trial Ends:</span>
-                    <span className="text-sm text-zinc-900 dark:text-zinc-100">{formatDate(activeSubscription.trialEnd)}</span>
-                </div>
-            )}
-             {activeSubscription.status === "active" && activeSubscription.currentPeriodEnd && (
-                <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Renews On:</span>
-                    <span className="text-sm text-zinc-900 dark:text-zinc-100">{formatDate(activeSubscription.currentPeriodEnd)}</span>
-                </div>
-            )}
-             {activeSubscription.cancelAtPeriodEnd && activeSubscription.currentPeriodEnd && (
-                <div className="flex justify-between items-center text-yellow-600 dark:text-yellow-400">
-                    <span className="text-sm font-medium ">Cancels On:</span>
-                    <span className="text-sm">{formatDate(activeSubscription.currentPeriodEnd)}</span>
-                </div>
-            )}
-          </div>
+          <SubscriptionSkeleton />
         ) : (
-          <div className="max-w-md mx-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 space-y-4 text-center">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Free Plan</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Upgrade to unlock premium features and priority support.</p>
-            <ChangePlanDialog currentPlan={"starter"} isTrial={false} />
-          </div>
+          <>
+            {activeSubscription ? (
+              <div className="space-y-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 capitalize">
+                      {activePlanDetails?.name || activeSubscription.plan || "N/A"}
+                    </p>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                      {activePlanDetails?.description || "Your current subscription plan."}
+                    </p>
+                  </div>
+                  <Badge variant="secondary" className="capitalize">
+                    {activePlanDetails?.name || activeSubscription.plan || "N/A"}
+                  </Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Status:</span>
+                  <Badge
+                    variant={activeSubscription.status === "active" || activeSubscription.status === "trialing" ? "secondary" : "outline"}
+                    className="capitalize"
+                  >
+                    {activeSubscription.status}
+                  </Badge>
+                </div>
+                {activeSubscription.status === "trialing" && activeSubscription.trialEnd && (
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Trial Ends:</span>
+                        <span className="text-sm text-zinc-900 dark:text-zinc-100">{formatDate(activeSubscription.trialEnd)}</span>
+                    </div>
+                )}
+                 {activeSubscription.status === "active" && activeSubscription.currentPeriodEnd && (
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Renews On:</span>
+                        <span className="text-sm text-zinc-900 dark:text-zinc-100">{formatDate(activeSubscription.currentPeriodEnd)}</span>
+                    </div>
+                )}
+                 {activeSubscription.cancelAtPeriodEnd && activeSubscription.currentPeriodEnd && (
+                    <div className="flex justify-between items-center text-yellow-600 dark:text-yellow-400">
+                        <span className="text-sm font-medium ">Cancels On:</span>
+                        <span className="text-sm">{formatDate(activeSubscription.currentPeriodEnd)}</span>
+                    </div>
+                )}
+                {activePlanDetails?.features && activePlanDetails.features.length > 0 && (
+                  <div className="pt-4 border-t border-border mt-4">
+                    <h4 className="text-sm font-medium mb-2 text-zinc-800 dark:text-zinc-200">Plan Features:</h4>
+                    <ul className="space-y-1.5">
+                      {activePlanDetails.features.map((feature, index) => (
+                        <li key={index} className="flex items-center text-sm text-zinc-600 dark:text-zinc-400">
+                          <Check className="h-4 w-4 mr-2 text-green-500 flex-shrink-0" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <div className="pt-4">
+                   <ChangePlanDialog 
+                     currentPlan={activeSubscription.plan?.toLowerCase()} 
+                     isTrial={activeSubscription.status === 'trialing'}
+                   />
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8 px-4 space-y-3">
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  You currently do not have an active subscription.
+                </p>
+                <div className="pt-4">
+                 <ChangePlanDialog />
+                </div>
+              </div>
+            )}
+          </>
         )}
       </CardContent>
-      <CardFooter className="border-t border-zinc-100 dark:border-zinc-800 px-6 py-4 flex justify-end">
-        <Button
-          variant="outline"
-          onClick={handleManageBilling}
-          disabled={isPortalLoading}
-        >
-          {isPortalLoading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Settings className="mr-2 h-4 w-4" />
-          )}
-          Manage Billing & Plan
-        </Button>
-      </CardFooter>
     </Card>
+  );
+}
+
+// Skeleton component for loading state
+function SubscriptionSkeleton() {
+  return (
+    <div className="space-y-4 animate-pulse">
+      <div className="flex justify-between items-start">
+        <div>
+          <div className="h-6 w-24 bg-muted rounded"></div>
+          <div className="h-4 w-40 bg-muted rounded mt-2"></div>
+        </div>
+        <div className="h-6 w-16 bg-muted rounded"></div>
+      </div>
+      <div className="flex justify-between items-center">
+        <div className="h-4 w-12 bg-muted rounded"></div>
+        <div className="h-6 w-20 bg-muted rounded"></div>
+      </div>
+      <div className="flex justify-between items-center">
+        <div className="h-4 w-20 bg-muted rounded"></div>
+        <div className="h-4 w-24 bg-muted rounded"></div>
+      </div>
+      <div className="pt-4 border-t border-border mt-4">
+        <div className="h-4 w-28 bg-muted rounded mb-3"></div>
+        <div className="space-y-2">
+          <div className="flex items-center">
+            <div className="h-4 w-4 bg-muted rounded mr-2"></div>
+            <div className="h-4 w-full bg-muted rounded"></div>
+          </div>
+          <div className="flex items-center">
+            <div className="h-4 w-4 bg-muted rounded mr-2"></div>
+            <div className="h-4 w-3/4 bg-muted rounded"></div>
+          </div>
+          <div className="flex items-center">
+            <div className="h-4 w-4 bg-muted rounded mr-2"></div>
+            <div className="h-4 w-1/2 bg-muted rounded"></div>
+          </div>
+        </div>
+      </div>
+      <div className="pt-4">
+        <div className="h-9 w-32 bg-muted rounded"></div>
+      </div>
+    </div>
   );
 } 

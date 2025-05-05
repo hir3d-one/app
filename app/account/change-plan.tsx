@@ -11,16 +11,45 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { client } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
+import { subscriptionPlans, SubscriptionPlan } from "@/lib/config/plans";
 import { ArrowUpFromLine, CreditCard, RefreshCcw } from "lucide-react";
-import { useId, useState } from "react";
+import { useId, useState, useEffect } from "react";
 import { toast } from "sonner";
+
+const formatCurrency = (amount: number, currency = 'eur') => {
+	try {
+		return new Intl.NumberFormat('en-US', {
+			style: 'currency',
+			currency: currency.toUpperCase(),
+			minimumFractionDigits: amount % 100 === 0 ? 0 : 2,
+		}).format(amount / 100);
+	} catch (error) {
+		console.error("Currency formatting error:", error);
+		return `$${(amount / 100).toFixed(2)}`;
+	}
+};
 
 function Component(props: {
 	currentPlan?: string;
 	isTrial?: boolean;
 }) {
-	const [selectedPlan, setSelectedPlan] = useState("starter");
+	const defaultPlanId = 
+		subscriptionPlans.find(p => p.isFeatured)?.id || 
+		subscriptionPlans[0]?.id ||
+		'';
+
+	const [selectedPlanId, setSelectedPlanId] = useState(props.currentPlan?.toLowerCase() || defaultPlanId);
+	const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | undefined>(() => 
+		subscriptionPlans.find(p => p.id === selectedPlanId)
+	);
 	const id = useId();
+
+	useEffect(() => {
+		setSelectedPlan(subscriptionPlans.find(p => p.id === selectedPlanId));
+	}, [selectedPlanId]);
+
+	const displayPlans = subscriptionPlans;
+
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
@@ -58,75 +87,49 @@ function Component(props: {
 							{!props.currentPlan ? "Upgrade" : "Change"} your plan
 						</DialogTitle>
 						<DialogDescription className="text-left">
-							Pick one of the following plans.
+							Choose the plan that best fits your needs.
 						</DialogDescription>
 					</DialogHeader>
 				</div>
 
 				<form className="space-y-5">
 					<RadioGroup
-						className="gap-2"
-						defaultValue="2"
-						value={selectedPlan}
-						onValueChange={(value) => setSelectedPlan(value)}
+						className="gap-3"
+						value={selectedPlanId}
+						onValueChange={setSelectedPlanId}
 					>
-						<div className="relative flex w-full items-center gap-2 rounded-lg border border-input px-4 py-3 shadow-sm shadow-black/5 has-[[data-state=checked]]:border-ring has-[[data-state=checked]]:bg-accent">
-							<RadioGroupItem
-								value="starter"
-								id={`${id}-1`}
-								aria-describedby={`${id}-1-description`}
-								className="order-1 after:absolute after:inset-0"
-							/>
-							<div className="grid grow gap-1">
-								<Label htmlFor={`${id}-1`}>Starter</Label>
-								<p
-									id={`${id}-1-description`}
-									className="text-xs text-muted-foreground"
-								>
-									$50/month
-								</p>
+						{displayPlans.map((plan, index) => (
+							<div
+								key={plan.id}
+								className={cn(
+									"relative flex w-full items-center gap-3 rounded-lg border border-input p-4 shadow-sm shadow-black/5",
+									"has-[[data-state=checked]]:border-ring has-[[data-state=checked]]:bg-accent",
+								)}
+							>
+								<RadioGroupItem
+									value={plan.id}
+									id={`${id}-${plan.id}`}
+									aria-describedby={`${id}-${plan.id}-description`}
+									className="order-1 shrink-0 after:absolute after:inset-0"
+								/>
+								<div className="grid grow gap-1">
+									<Label htmlFor={`${id}-${plan.id}`} className="font-medium capitalize">
+										{plan.name}
+									</Label>
+									<p
+										id={`${id}-${plan.id}-description`}
+										className="text-sm text-muted-foreground"
+									>
+										{plan.price > 0 ? `${formatCurrency(plan.price)}/month` : 'Contact Sales'}
+									</p>
+								</div>
 							</div>
-						</div>
-						<div className="relative flex w-full items-center gap-2 rounded-lg border border-input px-4 py-3 shadow-sm shadow-black/5 has-[[data-state=checked]]:border-ring has-[[data-state=checked]]:bg-accent">
-							<RadioGroupItem
-								value="professional"
-								id={`${id}-2`}
-								aria-describedby={`${id}-2-description`}
-								className="order-1 after:absolute after:inset-0"
-							/>
-							<div className="grid grow gap-1">
-								<Label htmlFor={`${id}-2`}>Professional</Label>
-								<p
-									id={`${id}-2-description`}
-									className="text-xs text-muted-foreground"
-								>
-									$99/month
-								</p>
-							</div>
-						</div>
-						<div className="relative flex w-full items-center gap-2 rounded-lg border border-input px-4 py-3 shadow-sm shadow-black/5 has-[[data-state=checked]]:border-ring has-[[data-state=checked]]:bg-accent">
-							<RadioGroupItem
-								value="enterprise"
-								id={`${id}-3`}
-								aria-describedby={`${id}-3-description`}
-								className="order-1 after:absolute after:inset-0"
-							/>
-							<div className="grid grow gap-1">
-								<Label htmlFor={`${id}-3`}>Enterprise</Label>
-								<p
-									id={`${id}-3-description`}
-									className="text-xs text-muted-foreground"
-								>
-									Contact our sales team
-								</p>
-							</div>
-						</div>
+						))}
 					</RadioGroup>
 
 					<div className="space-y-3">
-						<p className="text-xs text-white/70 text-center">
-							note: all upgrades takes effect immediately and you'll be charged
-							the new amount on your next billing cycle.
+						<p className="text-xs text-muted-foreground text-center">
+							Upgrades take effect immediately. You'll be charged prorated amount or credited on your next billing cycle.
 						</p>
 					</div>
 
@@ -135,16 +138,16 @@ function Component(props: {
 							type="button"
 							className="w-full"
 							disabled={
-								selectedPlan === props.currentPlan?.toLowerCase() &&
-								!props.isTrial
+								(selectedPlanId === props.currentPlan?.toLowerCase() && !props.isTrial)
 							}
 							onClick={async () => {
-								if (selectedPlan === "enterprise") {
+								if (!selectedPlan) {
+									toast.error("Please select a valid plan.");
 									return;
 								}
 								await client.subscription.upgrade(
 									{
-										plan: selectedPlan,
+										plan: selectedPlan.name,
 									},
 									{
 										onError: (ctx) => {
@@ -154,17 +157,18 @@ function Component(props: {
 								);
 							}}
 						>
-							{selectedPlan === props.currentPlan?.toLowerCase()
-								? props.isTrial
-									? "Upgrade"
-									: "Current Plan"
-								: selectedPlan === "starter"
-									? !props.currentPlan
-										? "Upgrade"
-										: "Downgrade"
-									: selectedPlan === "professional"
-										? "Upgrade"
-										: "Contact us"}
+							{(() => {
+								const isCurrent = selectedPlanId === props.currentPlan?.toLowerCase();
+								if (isCurrent) return props.isTrial ? "Activate Plan" : "Current Plan";
+								
+								const currentPlanIndex = subscriptionPlans.findIndex(p => p.id === props.currentPlan?.toLowerCase());
+								const selectedPlanIndex = subscriptionPlans.findIndex(p => p.id === selectedPlanId);
+
+								if (props.currentPlan === undefined || selectedPlanIndex > currentPlanIndex) return "Upgrade";
+								if (selectedPlanIndex < currentPlanIndex) return "Downgrade";
+
+								return "Change Plan";
+							})()}
 						</Button>
 						{props.currentPlan && (
 							<Button
