@@ -5,7 +5,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { SiteHeader } from "@/components/site-header";
 import UserCardClient from "./UserCardClient";
-import { OrganizationCard } from "@/app/account/organization-card";
+import { OrganizationCard } from "./organization-card";
 
 export default async function AccountPage() {
   const [session, activeSessions, deviceSessions, organization, subscriptions] =
@@ -23,7 +23,7 @@ export default async function AccountPage() {
     <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader title="Account" />
         <div className="flex flex-col w-full p-4 space-y-4">
           <UserCardClient
             session={JSON.parse(JSON.stringify(session))}

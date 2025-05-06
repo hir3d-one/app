@@ -7,9 +7,9 @@ export default function NotificationsPage() {
     <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader title="Notifications" />
         <div className="px-4 py-4">
-          <h1 className="text-xl font-bold">Notifications</h1>
+          {/* <h1 className="text-xl font-bold">Notifications</h1> */}
           <p>Notifications are coming soon.</p>
         </div>
       </SidebarInset>

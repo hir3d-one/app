@@ -205,8 +205,8 @@ function Component(props: {
 										{
 											plan: selectedPlanDetails.name,
 											annual: billingPeriod === "yearly",
-											successUrl: "/account",
-											cancelUrl: "/account",
+											successUrl: "/dashboard/account",
+											cancelUrl: "/dashboard/account",
 										},
 										{ 
 											onError: (ctx: { error: Error }) => {
@@ -259,7 +259,7 @@ function Component(props: {
 									className="w-full"
 									onClick={async () => {
 										await client.subscription.cancel(
-											{ returnUrl: "/account" },
+											{ returnUrl: "/dashboard/account" },
 											{ onError: (ctx) => { toast.error(ctx.error.message); } }
 										);
 									}}

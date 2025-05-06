@@ -1,4 +1,4 @@
-import { PreferencesSection } from "@/components/account/preference-section";
+import { PreferencesSection } from "@/components/dashboard/account/preference-section";
 
 export default function Preference() {
   return (

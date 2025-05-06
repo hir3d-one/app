@@ -12,7 +12,7 @@ import { Loader2 } from "lucide-react";
 import { client } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
-import { Component as ChangePlanDialog } from "@/app/account/change-plan";
+import { Component as ChangePlanDialog } from "@/app/dashboard/account/change-plan";
 import React from "react";
 import { subscriptionPlans, SubscriptionPlan } from "@/lib/config/plans";
 import { Check } from "lucide-react";

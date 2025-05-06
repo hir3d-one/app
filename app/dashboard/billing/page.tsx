@@ -3,8 +3,8 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { SiteHeader } from "@/components/site-header";
-import { SubscriptionSection } from "@/components/account/subscription-section";
-import { UsageSection } from "@/components/account/usage-section";
+import { SubscriptionSection } from "@/components/dashboard/account/subscription-section";
+import { UsageSection } from "@/components/dashboard/account/usage-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
@@ -16,7 +16,7 @@ export default function BillingPage() {
   const { data: invoices, isLoading: isLoadingInvoices } = useQuery({
     queryKey: ["invoices"],
     queryFn: async () => {
-      const res = await client.subscription.listInvoices({
+      const res = await client.subscription.list({
         fetchOptions: {
           throw: false,
         },
@@ -36,7 +36,7 @@ export default function BillingPage() {
     <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader title="Billing" />
         <div className="flex flex-col w-full p-4">
           <Tabs defaultValue="subscription" className="w-full">
             <TabsList className="w-auto mb-4">

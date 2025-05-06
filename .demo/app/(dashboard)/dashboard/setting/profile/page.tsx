@@ -1,4 +1,4 @@
-import { ProfileSection } from "@/components/account/profile-section";
+import { ProfileSection } from "@/components/dashboard/account/profile-section";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 

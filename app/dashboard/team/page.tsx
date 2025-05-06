@@ -7,9 +7,9 @@ export default function TeamPage() {
     <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader title="Team" />
         <div className="p-4">
-          <h1 className="text-2xl font-bold">Team</h1>
+          {/* <h1 className="text-2xl font-bold">Team</h1> */}
           <p>This is the Team page.</p>
         </div>
       </SidebarInset>

@@ -1,4 +1,4 @@
-import { SubscriptionSection } from "@/components/account/subscription-section";
+import { SubscriptionSection } from "@/components/dashboard/account/subscription-section";
 
 export default function BillingPage() {
   // SubscriptionSection fetches its own data client-side using useQuery

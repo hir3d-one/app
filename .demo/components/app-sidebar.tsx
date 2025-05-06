@@ -47,52 +47,52 @@ const data = {
   navMain: [
     {
       title: "Account",
-      url: "/account",
+      url: "/dashboard/account",
       icon: IconAccount,
     },
     {
       title: "Account",
-      url: "/account/profile",
+      url: "/dashboard/account/profile",
       icon: IconUserCircle,
     },
     {
       title: "Subscriptions",
-      url: "/account/subscriptions",
+      url: "/dashboard/account/subscriptions",
       icon: IconMoneybagPlus,
     },
     {
       title: "Setting",
-      url: "/account/setting",
+      url: "/dashboard/account/setting",
       icon: IconSettings,
       items: [
         {
           title: "Profile",
-          url: "/account/setting/profile",
+          url: "/dashboard/account/setting/profile",
           icon: IconUserCircle,
         },
         {
           title: "Security",
-          url: "/account/setting/security",
+          url: "/dashboard/account/setting/security",
           icon: IconShieldLock,
         },
         {
           title: "Notifications",
-          url: "/account/setting/notifications",
+          url: "/dashboard/account/setting/notifications",
           icon: IconBell,
         },
         {
           title: "Appearance",
-          url: "/account/setting/preference",
+          url: "/dashboard/account/setting/preference",
           icon: IconDeviceDesktop,
         },
         {
           title: "API Keys",
-          url: "/account/setting/api-keys",
+          url: "/dashboard/account/setting/api-keys",
           icon: IconKey,
         },
         {
           title: "Billing",
-          url: "/account/setting/billing",
+          url: "/dashboard/account/setting/billing",
           icon: IconCreditCard,
         },
       ],

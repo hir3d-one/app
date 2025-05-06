@@ -148,7 +148,7 @@ export default function AdminAccount() {
 		try {
 			await client.admin.impersonateUser({ userId: id });
 			toast.success("Impersonated user");
-			router.push("/account");
+			router.push("/dashboard/account");
 		} catch (error: any) {
 			toast.error(error.message || "Failed to impersonate user");
 		} finally {

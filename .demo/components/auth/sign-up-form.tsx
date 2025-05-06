@@ -67,7 +67,7 @@ export function SignUpForm() {
                 password,
                 name,
                 image: image ? await convertImageToBase64(image) : undefined,
-                callbackURL: "/account",
+                callbackURL: "/dashboard/account",
             });
 
             if (res.error) {

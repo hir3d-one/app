@@ -7,9 +7,9 @@ export default function LifecyclePage() {
     <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader title="Lifecycle" />
         <div className="p-4">
-          <h1 className="text-2xl font-bold">Lifecycle</h1>
+          {/* <h1 className="text-2xl font-bold">Lifecycle</h1> */}
           <p>This is the Lifecycle page.</p>
         </div>
       </SidebarInset>

@@ -7,9 +7,9 @@ export default function ProjectsPage() {
     <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader title="Projects" />
         <div className="p-4">
-          <h1 className="text-2xl font-bold">Projects</h1>
+          {/* <h1 className="text-2xl font-bold">Projects</h1> */}
           <p>This is the Projects page.</p>
         </div>
       </SidebarInset>

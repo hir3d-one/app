@@ -39,7 +39,7 @@ export function SignInForm() {
                 if (res?.error) {
                     toast.error(res.error.message || "Sign in failed.");
                 } else {
-                    router.push("/account");
+                    router.push("/dashboard/account");
                     toast.success("Signed in successfully!");
                 }
             } else if (provider === 'passkey') {
@@ -47,12 +47,12 @@ export function SignInForm() {
                  if (res?.error) {
                     toast.error(res.error.message || "Passkey sign in failed.");
                  } else {
-                    router.push("/account");
+                    router.push("/dashboard/account");
                     toast.success("Signed in with passkey!");
                  }
             } else {
                 // Social providers - redirect happens automatically, check for initial error
-                res = await signIn.social({ provider, callbackURL: "/account" });
+                res = await signIn.social({ provider, callbackURL: "/dashboard/account" });
                  if (res?.error) {
                     // Error might occur before redirect (e.g., config issue)
                      toast.error(res.error.message || `Sign in with ${provider} failed.`);
