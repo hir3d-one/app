@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/command";
 import { ChevronDown, PlusCircle } from "lucide-react";
 import { Session } from "@/lib/auth-types";
-import { client, useSession } from "@/lib/auth-client";
+import { authClient, useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
 export default function AccountSwitcher({
@@ -80,7 +80,7 @@ export default function AccountSwitcher({
 									<CommandItem
 										key={i}
 										onSelect={async () => {
-											await client.multiSession.setActive({
+											await authClient.multiSession.setActive({
 												sessionToken: u.session.token,
 											});
 											setOpen(false);

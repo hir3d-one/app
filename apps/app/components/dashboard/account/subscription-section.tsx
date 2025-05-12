@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
-import { client } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { Component as ChangePlanDialog } from "@/components/dashboard/account/change-plan";
@@ -32,7 +32,7 @@ export function SubscriptionSection() {
   const { data: subscriptions, isLoading: isLoadingSubscriptions } = useQuery({
     queryKey: ["subscriptions"],
     queryFn: async () => {
-      const res = await client.subscription.list({
+      const res = await authClient.subscription.list({
         fetchOptions: {
           throw: false, // Don't throw on error, handle it below
         },

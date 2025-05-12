@@ -13,7 +13,7 @@ import { CheckIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
-import { client, organization } from "@/lib/auth-client";
+import { authClient, organization } from "@/lib/auth-client";
 import { InvitationError } from "./invitation-error";
 
 export default function InvitationPage() {
@@ -70,7 +70,7 @@ export default function InvitationPage() {
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
-		client.organization
+		authClient.organization
 			.getInvitation({
 				query: {
 					id: params.id,

@@ -8,12 +8,14 @@ import {
 	oneTapClient,
 	oidcClient,
 	genericOAuthClient,
+	apiKeyClient,
 } from "better-auth/client/plugins";
 import { toast } from "sonner";
 import { stripeClient } from "@better-auth/stripe/client";
 
-export const client = createAuthClient({
+export const authClient = createAuthClient({
 	plugins: [
+		apiKeyClient(),
 		organizationClient(),
 		twoFactorClient({
 			onTwoFactorRedirect() {
@@ -52,6 +54,6 @@ export const {
 	organization,
 	useListOrganizations,
 	useActiveOrganization,
-} = client;
+} = authClient;
 
-client.$store.listen("$sessionSignal", async () => {});
+authClient.$store.listen("$sessionSignal", async () => {});

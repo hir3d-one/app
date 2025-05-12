@@ -10,7 +10,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { client } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { subscriptionPlans, SubscriptionPlan } from "@/lib/config/plans";
 import { ArrowUpFromLine, CreditCard, RefreshCcw, Loader2 } from "lucide-react";
@@ -201,7 +201,7 @@ function Component(props: {
 										return;
 									}
 
-									await client.subscription.upgrade(
+									await authClient.subscription.upgrade(
 										{
 											plan: selectedPlanDetails.name,
 											annual: billingPeriod === "yearly",
@@ -258,7 +258,7 @@ function Component(props: {
 									variant="destructive"
 									className="w-full"
 									onClick={async () => {
-										await client.subscription.cancel(
+										await authClient.subscription.cancel(
 											{ returnUrl: "/dashboard/account" },
 											{ onError: (ctx) => { toast.error(ctx.error.message); } }
 										);

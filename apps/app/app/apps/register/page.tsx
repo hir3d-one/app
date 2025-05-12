@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { client } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 
 export default function RegisterOAuthClient() {
 	const [name, setName] = useState("");
@@ -34,7 +34,7 @@ export default function RegisterOAuthClient() {
 			setIsSubmitting(false);
 			return;
 		}
-		const res = await client.oauth2.register({
+		const res = await authClient.oauth2.register({
 			name,
 			icon: await convertImageToBase64(logo),
 			redirectURLs: [redirectUri],

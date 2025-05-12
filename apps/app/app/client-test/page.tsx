@@ -22,7 +22,7 @@ export default function ClientTest() {
 	const [loading, setLoading] = useState(false);
 
 	// Get the session data using the useSession hook
-	const { data: session, isPending, error } = client.useSession();
+	const { data: session, isPending, error } = authClient.useSession();
 
 	const handleLogin = async () => {
 		setLoading(true);
@@ -166,7 +166,7 @@ export default function ClientTest() {
 								variant="outline"
 								className="w-full"
 								onClick={() =>
-									client.signOut({
+									authClient.signOut({
 										fetchOptions: {
 											onSuccess: () => {
 												toast.success("Successfully signed out!");
