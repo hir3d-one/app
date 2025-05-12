@@ -6,6 +6,7 @@ import {
   LogOutIcon,
   MoreVerticalIcon,
   UserCircleIcon,
+  KeyRound,
 } from "lucide-react"
 
 import {
@@ -125,6 +126,10 @@ export function NavUser({
               <DropdownMenuItem onClick={() => router.push("/dashboard/account/notifications")}> 
                 <BellIcon />
                 Notifications
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/dashboard/api-keys")}> 
+                <KeyRound className="size-4" />
+                API Keys 
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

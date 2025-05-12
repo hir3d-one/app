@@ -243,6 +243,7 @@ export const auth = betterAuth({
 			},
 		}),
 		apiKey({
+			enableMetadata: true,
 			disableSessionForAPIKeys: true,
 		}),
 	],

@@ -25,7 +25,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, QrCode, ShieldCheck, ShieldOff, Copy } from "lucide-react";
 import { Session } from "better-auth";
-import { client } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import QRCode from "react-qr-code";
 import { useRouter } from "next/navigation";
@@ -77,7 +77,7 @@ export function TwoFactorSection({
       setIsLoading(true);
 
       if (twoFactorEnabled) {
-          await client.twoFactor.disable(
+          await authClient.twoFactor.disable(
               { password },
               {
                   fetchOptions: {
@@ -102,7 +102,7 @@ export function TwoFactorSection({
                   setIsLoading(false);
                   return;
               }
-              await client.twoFactor.verifyTotp(
+              await authClient.twoFactor.verifyTotp(
                   { code: otpCode },
                   {
                       fetchOptions: {
@@ -121,7 +121,7 @@ export function TwoFactorSection({
                   }
               );
           } else {
-              await client.twoFactor.enable(
+              await authClient.twoFactor.enable(
                   { password },
                   {
                      fetchOptions: {

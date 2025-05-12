@@ -1,6 +1,6 @@
 "use client";
 
-import { client, signIn } from "@/lib/auth-client";
+import { authClient, signIn } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
 import {
 	Dialog,
@@ -22,7 +22,7 @@ import { Label } from "./ui/label";
 export function OneTap() {
 	const [isOpen, setIsOpen] = useState(false);
 	useEffect(() => {
-		client.oneTap({
+		authClient.oneTap({
 			onPromptNotification(notification) {
 				setIsOpen(true);
 			},

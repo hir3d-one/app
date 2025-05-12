@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Laptop, Loader2, Smartphone } from "lucide-react"; // Changed MobileIcon to Smartphone
 import { Session } from "better-auth"; // Assuming Session type includes session details like id, token, userAgent
-import { client } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { UAParser } from "ua-parser-js";
 import { useRouter } from "next/navigation";
@@ -50,7 +50,7 @@ export function SessionsSection({
 
   const handleRevokeSession = async (session: ActiveSession) => {
     setIsTerminating(session.id);
-    const res = await client.revokeSession(
+    const res = await authClient.revokeSession(
       { token: session.token },
       {
         fetchOptions: {

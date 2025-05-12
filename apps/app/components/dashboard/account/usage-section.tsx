@@ -2,7 +2,7 @@
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { client } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -21,7 +21,7 @@ export function UsageSection() {
     queryFn: async () => {
       // --- Hypothetical API call --- 
       // Replace with your actual usage fetching logic
-      const res = await client.usage.getCurrent({
+      const res = await authClient.usage.getCurrent({
         fetchOptions: {
           throw: false,
         },

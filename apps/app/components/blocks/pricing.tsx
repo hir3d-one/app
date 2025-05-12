@@ -11,7 +11,7 @@ import { useState, useRef, useEffect } from "react";
 import confetti from "canvas-confetti";
 import NumberFlow from "@number-flow/react";
 import { CheckIcon } from "@radix-ui/react-icons";
-import { client } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 
 function useMediaQuery(query: string) {
 	const [matches, setMatches] = useState(false);
@@ -205,7 +205,7 @@ export function Pricing({
 							<hr className="w-full my-4" />
 							<Button
 								onClick={async () => {
-									await client.subscription.upgrade({
+									await authClient.subscription.upgrade({
 										plan: plan.name.toLowerCase(),
 										successUrl: "/dashboard/account",
 									});

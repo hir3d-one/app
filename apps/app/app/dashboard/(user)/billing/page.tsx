@@ -8,7 +8,7 @@ import { UsageSection } from "@/components/dashboard/account/usage-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
-import { client } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -16,7 +16,7 @@ export default function BillingPage() {
   const { data: invoices, isLoading: isLoadingInvoices } = useQuery({
     queryKey: ["invoices"],
     queryFn: async () => {
-      const res = await client.subscription.list({
+      const res = await authClient.subscription.list({
         fetchOptions: {
           throw: false,
         },

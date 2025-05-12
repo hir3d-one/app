@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Edit, Loader2, Upload, X } from "lucide-react";
 import { Session, User } from "better-auth";
-import { client, useSession } from "@/lib/auth-client";
+import { authClient, useSession } from "@/lib/auth-client";
 import { toast } from "sonner";
 import React from "react";
 
@@ -83,7 +83,7 @@ export function ProfileSection() {
 
   const handleUpdateUser = async () => {
     setIsUpdating(true);
-    await client.updateUser(
+    await authClient.updateUser(
       {
         image: image ? await convertImageToBase64(image) : undefined,
         name: name !== session.user.name ? name : undefined,

@@ -30,10 +30,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Fingerprint, Loader2, Plus, Trash } from "lucide-react";
-import { client } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 
-// Define Passkey type based on better-auth client.useListPasskeys() response
+// Define Passkey type based on better-auth authClient.useListPasskeys() response
 interface Passkey {
   id: string;
   name: string | null;
@@ -41,7 +41,7 @@ interface Passkey {
 }
 
 export function PasskeysSection() {
-  const { data: passkeys, isLoading: isLoadingList } = client.useListPasskeys();
+  const { data: passkeys, isLoading: isLoadingList } = authClient.useListPasskeys();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newPasskeyName, setNewPasskeyName] = useState("");
   const [isAdding, setIsAdding] = useState(false);
@@ -53,7 +53,7 @@ export function PasskeysSection() {
       return;
     }
     setIsAdding(true);
-    const res = await client.passkey.addPasskey(
+    const res = await authClient.passkey.addPasskey(
       {
         name: newPasskeyName,
       },
@@ -79,7 +79,7 @@ export function PasskeysSection() {
 
   const handleDeletePasskey = async (passkeyId: string) => {
     setIsDeleting(passkeyId);
-    await client.passkey.deletePasskey(
+    await authClient.passkey.deletePasskey(
         { id: passkeyId },
         {
            fetchOptions: {
