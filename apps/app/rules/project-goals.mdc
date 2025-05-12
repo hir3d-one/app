@@ -1,0 +1,32 @@
+---
+description: Project Goals
+globs: 
+alwaysApply: false
+---
+# Overview
+The goal of this codebase is to create the webapp of our hired platform. Its job is to provide an interface for our customers to do various things, like creating job queries that search our database for matching candidates,
+
+# Job Queries (Main Objective)
+Use two modes: basic mode, which utilizes the default LLM like GPT-4o to evaluate CVs based on a simple instruction, and advanced mode, which allows companies to provide good and bad examples of CVs they would accept or reject for their job openings. This mode pretrains a model based on this information, resulting in more tailored decisions that align with the company's criteria.
+
+Basic Mode:
+1. User inputs job requirements and company profile
+2. System searches web-based professional profiles
+3. Candidate evaluation based on multiple factors:
+- Professional experience
+- Project history
+- Team collaboration indicators
+- Remote work capabilities
+- Role-specific skills
+4. AI-driven analysis for unbiased selection
+5. Results presentation and recommendation
+
+Advanced Mode:
+Similar structure to Basic Mode, however the user can provide positive and negative examples prior, so we can finetune the models for their specific requirements
+
+# Job Postings (Comes Later V1.1)
+Allows Users to create Job posts which are shown in the "Jobs" Section on our homepage. Limited by plan
+
+
+# Candidate Search Manually (Comes Later V1.1)
+Allow Users to manually search our candidate database for candidates. They will see the profile with the ai analysis at the bottom, both general anlysis and a custom tailored analysis for the companies interests

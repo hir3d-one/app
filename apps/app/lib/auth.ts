@@ -14,13 +14,17 @@ import {
 import { reactInvitationEmail } from "./email/invitation";
 import { reactResetPasswordEmail } from "./email/reset-password";
 import { resend } from "./email/resend";
-import { PostgresDialect } from "kysely";
-import { Pool } from "pg";
 import { nextCookies } from "better-auth/next-js";
 import { passkey } from "better-auth/plugins/passkey";
 import { stripe } from "@better-auth/stripe";
 import { Stripe } from "stripe";
 import { apiKey } from "better-auth/plugins";
+
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { PrismaClient } from "@hir3d/db";
+
+const prisma = new PrismaClient();
+ 
 import {
 	PlusPlan,
 	ProfessionalPlan,
@@ -33,19 +37,7 @@ import {
 const from = process.env.BETTER_AUTH_EMAIL || "delivered@resend.dev";
 const to = process.env.TEST_EMAIL || "";
 
-const postgresUrl = process.env.POSTGRES_URL;
 
-if (!postgresUrl) {
-	throw new Error("POSTGRES_URL environment variable is not set.");
-}
-
-const pool = new Pool({
-	connectionString: postgresUrl,
-});
-
-const dialect = new PostgresDialect({
-	pool,
-});
 
 // Remove old hardcoded price IDs if they are now fully managed in plans.ts
 // const PROFESSION_PRICE_ID = {
@@ -59,10 +51,9 @@ const dialect = new PostgresDialect({
 
 export const auth = betterAuth({
 	appName: "Better Auth Demo",
-	database: {
-		dialect,
-		type: "postgres",
-	},
+	database: prismaAdapter(prisma, {
+		provider: "mysql",
+	}),
 	emailVerification: {
 		async sendVerificationEmail({ user, url }: { user: { email: string }, url: string }) {
 			const res = await resend.emails.send({
