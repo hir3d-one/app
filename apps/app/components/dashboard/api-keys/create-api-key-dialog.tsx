@@ -17,10 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2, KeyRound, PlusCircle, CalendarIcon } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+import { Loader2, KeyRound, CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
@@ -31,28 +28,19 @@ interface CreateApiKeyDialogProps {
   children: React.ReactNode;
 }
 
-const daysToSeconds = (days: number | null | undefined): number | undefined => {
-  if (days === null || days === undefined || days <= 0) return undefined;
-  return days * 24 * 60 * 60;
-};
-
-const timeToMs = (value: number | null | undefined, unit: 'days' | 'hours' | 'minutes'): number | undefined => {
-  if (value === null || value === undefined || value <= 0) return undefined;
-  switch (unit) {
-    case 'days': return value * 24 * 60 * 60 * 1000;
-    case 'hours': return value * 60 * 60 * 1000;
-    case 'minutes': return value * 60 * 1000;
-    default: return undefined;
-  }
-};
-
 // Helper to calculate expiresIn seconds from a future date
 const calculateExpiresInSeconds = (date: Date | undefined): number | undefined => {
-  if (!date) return undefined;
-  const now = Date.now();
+  if (!date) return undefined; // No date means never expires
+  const now = new Date();
+  // Compare dates only, ignore time of day for 'must be in future' check
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const selectedDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+  if (selectedDay < today) return undefined; // Don't allow past dates
+  
+  // Calculate difference in seconds from now (including time)
   const futureTime = date.getTime();
-  if (futureTime <= now) return undefined; // Don't allow past dates
-  return Math.floor((futureTime - now) / 1000);
+  return Math.floor((futureTime - Date.now()) / 1000);
 };
 
 export function CreateApiKeyDialog({ onKeyCreated, children }: CreateApiKeyDialogProps) {
@@ -61,7 +49,9 @@ export function CreateApiKeyDialog({ onKeyCreated, children }: CreateApiKeyDialo
   const [name, setName] = useState("");
   const [expiresAtDate, setExpiresAtDate] = useState<Date | undefined>(undefined);
   const [comment, setComment] = useState("");
-  const datePickerId = useId();
+  const nameInputId = useId();
+  const expiresInputId = useId();
+  const commentInputId = useId();
 
   const createMutation = useMutation({
     mutationFn: (params: Parameters<typeof authClient.apiKey.create>[0]) => authClient.apiKey.create(params),
@@ -80,7 +70,7 @@ export function CreateApiKeyDialog({ onKeyCreated, children }: CreateApiKeyDialo
          toast.error("Failed to create API key. Unknown error.");
       }
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error?.message || "An unexpected error occurred.");
     },
   });
@@ -93,12 +83,12 @@ export function CreateApiKeyDialog({ onKeyCreated, children }: CreateApiKeyDialo
     const expiresIn = calculateExpiresInSeconds(expiresAtDate);
     
     if (expiresAtDate && expiresIn === undefined) {
-        toast.error("Expiration date must be in the future.");
+        toast.error("Expiration date must be today or in the future.");
         return;
     }
 
     const apiKeyData: Parameters<typeof authClient.apiKey.create>[0] = {
-      name: name || undefined,
+      name: name.trim() || undefined,
       expiresIn: expiresIn,
       metadata: simpleMetadata,
     };
@@ -106,90 +96,114 @@ export function CreateApiKeyDialog({ onKeyCreated, children }: CreateApiKeyDialo
     createMutation.mutate(apiKeyData);
   };
 
+  const handleOpenChange = (open: boolean) => {
+      setIsOpen(open);
+      if (!open) {
+          // Optionally reset fields on close, or keep them for re-opening
+          // setName("");
+          // setExpiresAtDate(undefined);
+          // setComment("");
+      }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Create New API Key</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+             <KeyRound className="h-5 w-5"/> Create New API Key
+          </DialogTitle>
           <DialogDescription>
-            Provide a name and optional details for your new key. The key will be shown once upon creation.
+            Provide details for your new key. The key secret will only be shown once upon creation.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Name
-            </Label>
+        <form onSubmit={handleSubmit} className="space-y-6 pt-4 pb-2">
+          <div className="space-y-2">
+            <Label htmlFor={nameInputId}>Name</Label>
             <Input
-              id="name"
+              id={nameInputId}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="col-span-3"
-              placeholder="e.g., My Production Key"
+              placeholder="e.g., My Production Key, Staging Server Key"
+              maxLength={100}
             />
+            <p className="text-xs text-muted-foreground">
+                A descriptive name to help you identify this key later (optional).
+            </p>
           </div>
-           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor={datePickerId} className="text-right">
-              Expires At
-            </Label>
+          
+          <div className="space-y-2">
+            <Label htmlFor={expiresInputId}>Expires At</Label>
              <Popover>
               <PopoverTrigger asChild>
                 <Button
-                  id={datePickerId}
+                  id={expiresInputId}
                   variant={"outline"}
                   className={cn(
-                    "col-span-3 group bg-background hover:bg-background border-input w-full justify-between px-3 font-normal outline-offset-0 outline-none focus-visible:outline-[3px]",
+                    "w-full justify-start text-left font-normal",
                     !expiresAtDate && "text-muted-foreground"
                   )}
                 >
-                  <span className={cn("truncate", !expiresAtDate && "text-muted-foreground")}>
-                    {expiresAtDate ? format(expiresAtDate, "PPP") : <span>Pick a date</span>}
-                  </span>
-                  <CalendarIcon 
-                    size={16} 
-                    className="text-muted-foreground/80 group-hover:text-foreground shrink-0 transition-colors"
-                    aria-hidden="true" 
-                  />
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {expiresAtDate ? format(expiresAtDate, "PPP") : <span>Never</span>}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-2" align="start">
+              <PopoverContent className="w-auto p-0">
                 <Calendar
                   mode="single"
                   selected={expiresAtDate}
                   onSelect={setExpiresAtDate}
-                  initialFocus
                   disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                  initialFocus
                 />
+                {expiresAtDate && (
+                    <div className="p-2 border-t">
+                       <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full h-8"
+                          onClick={() => setExpiresAtDate(undefined)}
+                        >
+                          Clear (Never Expire)
+                        </Button>
+                    </div>
+                 )}
               </PopoverContent>
             </Popover>
+            <p className="text-xs text-muted-foreground">
+                Select a date when this key should automatically expire. Leave blank if it should never expire.
+            </p>
           </div>
-           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="comment" className="text-right">
-              Comment
-            </Label>
+
+          <div className="space-y-2">
+            <Label htmlFor={commentInputId}>Comment</Label>
             <Input
-              id="comment"
+              id={commentInputId}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="col-span-3"
-              placeholder={'Optional description (e.g., For reporting script)'}
+              placeholder="Optional short description (e.g., Used for X service)"
+              maxLength={200}
             />
+             <p className="text-xs text-muted-foreground">
+                Add an optional comment or note for this key.
+            </p>
           </div>
+        
+          <DialogFooter className="pt-4">
+               <DialogClose asChild>
+                 <Button type="button" variant="outline" disabled={createMutation.isPending}>Cancel</Button>
+               </DialogClose>
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <KeyRound className="mr-2 h-4 w-4" /> 
+                )}
+                Create Key
+              </Button>
+          </DialogFooter>
         </form>
-        <DialogFooter>
-           <DialogClose asChild>
-             <Button variant="outline" disabled={createMutation.isLoading}>Cancel</Button>
-           </DialogClose>
-          <Button type="submit" onClick={handleSubmit} disabled={createMutation.isLoading}>
-            {createMutation.isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <KeyRound className="mr-2 h-4 w-4" />
-            )}
-            Create Key
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
