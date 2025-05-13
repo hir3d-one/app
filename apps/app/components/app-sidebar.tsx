@@ -20,6 +20,14 @@ import {
   UserCircleIcon,
   CreditCardIcon,
   BellIcon,
+  ArchiveIcon,
+  StarIcon,
+  ZapIcon,
+  BriefcaseIcon,
+  UsersRoundIcon,
+  BookUserIcon,
+  PlusCircleIcon,
+  MailIcon,
 } from "lucide-react"
 
 import { NavDocuments } from "@/components/nav-documents"
@@ -27,6 +35,7 @@ import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/components/ui/button"
 import {
   Sidebar,
   SidebarContent,
@@ -49,10 +58,18 @@ const data = {
   },
   navMain: [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboardIcon },
-    { title: "Lifecycle", url: "/dashboard/lifecycle", icon: ListIcon },
+    { title: "Job Searches", url: "/dashboard/jobs", icon: BriefcaseIcon },
+    { title: "Candidate Pool", url: "/dashboard/candidates", icon: UsersRoundIcon },
+  ],
+  navMyTools: [
+    { title: "Shortlisted Candidates", url: "/dashboard/shortlisted", icon: StarIcon },
+    { title: "Saved Searches", url: "/dashboard/saved-searches", icon: SearchIcon },
+    { title: "Templates", url: "/dashboard/templates", icon: BookUserIcon },
+    { title: "Archived Jobs", url: "/dashboard/jobs/archived", icon: ArchiveIcon },
+  ],
+  navGrowthInsights: [
+    { title: "Promote Jobs", url: "/dashboard/promote", icon: ZapIcon },
     { title: "Analytics", url: "/dashboard/analytics", icon: BarChartIcon },
-    { title: "Projects", url: "/dashboard/projects", icon: FolderIcon },
-    { title: "Team", url: "/dashboard/team", icon: UsersIcon },
   ],
   navClouds: [
     {
@@ -108,15 +125,20 @@ const data = {
       url: "/dashboard/account",
       icon: UserCircleIcon,
     },
-    {
-      title: "Billing",
-      url: "/dashboard/billing",
-      icon: CreditCardIcon,
-    },
+    // {
+    //   title: "Billing",
+    //   url: "/dashboard/account/billing",
+    //   icon: CreditCardIcon,
+    // },
     {
       title: "Notifications",
       url: "/dashboard/notifications",
       icon: BellIcon,
+    },
+    {
+      title: "Help & Support",
+      url: "/dashboard/help",
+      icon: HelpCircleIcon,
     },
   ],
   documents: [
@@ -162,8 +184,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <OrganisationsSwitcher />
       </SidebarHeader>
       <SidebarContent>
+        <SidebarMenu className="p-2">
+          <SidebarMenuItem className="flex items-center gap-2">
+            <SidebarMenuButton
+              tooltip="Create Job Search"
+              className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
+            >
+              <PlusCircleIcon />
+              <span>Create Job Search</span>
+            </SidebarMenuButton>
+            <Button
+              size="icon"
+              className="h-9 w-9 shrink-0 group-data-[collapsible=icon]:opacity-0"
+              variant="outline"
+            >
+              <MailIcon />
+              <span className="sr-only">Inbox</span>
+            </Button>
+          </SidebarMenuItem>
+        </SidebarMenu>
+
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
+        <NavMain items={data.navMyTools} title="MY TOOLS" />
+        <NavMain items={data.navGrowthInsights} title="GROWTH & INSIGHTS" />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
