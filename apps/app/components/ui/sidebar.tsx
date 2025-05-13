@@ -744,6 +744,60 @@ const SidebarMenuSubButton = React.forwardRef<
 })
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
 
+const SidebarToggle = React.forwardRef<
+  React.ElementRef<typeof Button>,
+  React.ComponentPropsWithoutRef<typeof Button>
+>(({ className, ...props }, ref) => {
+  const { toggleSidebar } = useSidebar()
+
+  return (
+    <Button
+      ref={ref}
+      data-sidebar="toggle"
+      variant="ghost"
+      size="icon"
+      className={cn("h-7 w-7", className)}
+      onClick={(event) => {
+        event.preventDefault()
+        toggleSidebar()
+      }}
+      {...props}
+    >
+      <ViewVerticalIcon />
+      <span className="sr-only">Toggle Sidebar</span>
+    </Button>
+  )
+})
+SidebarToggle.displayName = "SidebarToggle"
+
+const SidebarSearch = React.forwardRef<
+  React.ElementRef<typeof Input>,
+  React.ComponentPropsWithoutRef<typeof Input>
+>(({ className, ...props }, ref) => (
+  <Input
+    ref={ref}
+    data-sidebar="search"
+    className={cn(
+      "h-8 w-full bg-background shadow-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
+      className
+    )}
+    {...props}
+  />
+))
+SidebarSearch.displayName = "SidebarSearch"
+
+const SidebarGroupHeader = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("px-3 py-2 text-xs font-medium text-muted-foreground", className)}
+    {...props}
+  />
+));
+SidebarGroupHeader.displayName = "SidebarGroupHeader";
+
 export {
   Sidebar,
   SidebarContent,
@@ -768,5 +822,8 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
+  SidebarToggle,
+  SidebarSearch,
+  SidebarGroupHeader,
   useSidebar,
 }

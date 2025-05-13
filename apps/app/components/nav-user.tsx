@@ -115,7 +115,7 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => router.push("/dashboard/dashboard/account")}>  
+              <DropdownMenuItem onClick={() => router.push("/dashboard/account")}>  
                 <UserCircleIcon />
                 Account
               </DropdownMenuItem>
@@ -123,11 +123,11 @@ export function NavUser({
                 <CreditCardIcon />
                 Billing
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/dashboard/account/notifications")}> 
+              <DropdownMenuItem onClick={() => router.push("/dashboard/notifications")}> 
                 <BellIcon />
                 Notifications
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/dashboard/api-keys")}> 
+              <DropdownMenuItem onClick={() => router.push("/dashboard/account/api-keys")}> 
                 <KeyRound className="size-4" />
                 API Keys 
               </DropdownMenuItem>
