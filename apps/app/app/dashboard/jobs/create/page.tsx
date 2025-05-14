@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { PlaceholdersAndVanishInputDemo } from "@/components/ui/placeholders-and-vanish-input";
+import { Spotlight } from "@/components/ui/spotlight";
 import { cn } from "@/lib/utils";
 import React from "react";
 
@@ -11,6 +12,10 @@ import React from "react";
 function JobsCreateBackground({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative flex flex-1 w-full items-center justify-center bg-white dark:bg-black">
+      <Spotlight
+        className="-top-20 left-0 md:top-12 md:left-[24rem]"
+        fill="white"
+      />
       <div
         className={cn(
           "absolute inset-0",
