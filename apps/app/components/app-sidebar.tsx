@@ -122,10 +122,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <SidebarMenu className="p-2">
           <SidebarMenuItem className="flex items-center gap-2">
-            <Link href="/dashboard/jobs/create">
+            <Link href="/dashboard/jobs/create" className="flex-grow">
               <SidebarMenuButton
                 tooltip="Create Job Search"
-                className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
+                className="w-full min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
               >
                 <PlusCircleIcon />
                 <span>Create Job Search</span>
