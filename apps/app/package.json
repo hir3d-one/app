@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:stripe": "next dev & stripe listen --forward-to localhost:3000/api/auth/stripe/webhook",
-    "stripe:dev": "stripe listen --forward-to localhost:3000/api/auth/stripe/webhook",
+    "stripe": "stripe listen --forward-to localhost:3000/api/auth/stripe/webhook",
     "dev:secure": "next dev --experimental-https",
     "typecheck": "tsc --noEmit",
     "betterauth:generate:schema": "npx @better-auth/cli@latest generate --output ../../packages/database/prisma/schema.prisma",
@@ -14,13 +13,13 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@hir3d/db": "workspace:*",
     "@better-auth/stripe": "latest",
     "@better-fetch/fetch": "latest",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@hir3d/db": "workspace:*",
     "@hookform/resolvers": "^3.9.1",
     "@number-flow/react": "^0.5.5",
     "@prisma/adapter-libsql": "^5.22.0",
@@ -70,6 +69,7 @@
     "crypto": "^1.0.1",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.5.1",
+    "flags": "^3.2.0",
     "framer-motion": "^11.13.1",
     "geist": "^1.3.1",
     "input-otp": "^1.4.1",
