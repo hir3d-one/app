@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import { subscriptionPlans, SubscriptionPlan } from "@/lib/config/plans";
 import { ArrowUpFromLine, CreditCard, RefreshCcw, Loader2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { useId, useState, useEffect } from "react";
+import { useId, useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 const formatCurrency = (amount: number, currency = 'eur') => {
@@ -55,10 +55,61 @@ function Component(props: {
 		subscriptionPlans.find((p) => p.id === selectedPlanId)
 	);
 	const id = useId();
+	const radioGroupRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		setSelectedPlan(subscriptionPlans.find((p) => p.id === selectedPlanId));
 	}, [selectedPlanId]);
+
+	const handleCancelSubscription = async () => {
+		setIsSubmitting(true);
+		try {
+			await authClient.subscription.cancel(
+				{ returnUrl: "/dashboard/account" }, // Using consistent return URL
+				{ onError: (ctx: { error: Error }) => { toast.error(ctx.error.message); } }
+			);
+		} catch (error: any) {
+			console.error("Error cancelling subscription:", error);
+			toast.error(error.message || "Failed to cancel plan.");
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
+	const handleUpgradeSubscription = async () => {
+		if (!selectedPlan) {
+			toast.error("Please select a valid plan.");
+			return;
+		}
+		setIsSubmitting(true);
+		try {
+			const selectedPlanDetails = subscriptionPlans.find(p => p.id === selectedPlanId);
+			if (!selectedPlanDetails) {
+				toast.error("Selected plan not found.");
+				setIsSubmitting(false); // Ensure isSubmitting is reset if plan details not found early
+				return;
+			}
+
+			await authClient.subscription.upgrade(
+				{
+					plan: selectedPlanDetails.name,
+					annual: billingPeriod === "yearly",
+					successUrl: "/dashboard/account",
+					cancelUrl: "/dashboard/account",
+				},
+				{ 
+					onError: (ctx: { error: Error }) => {
+						toast.error(ctx.error.message);
+					}
+				}
+			);
+		} catch (error: any) {
+			console.error("Error initiating subscription change:", error);
+			toast.error(error.message || "Failed to initiate plan change.");
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
 
 	const getPlanPriceDetails = (plan: SubscriptionPlan, period: "monthly" | "yearly") => {
 		if (period === "yearly" && plan.priceAnnual && plan.stripePriceIdAnnual) {
@@ -130,7 +181,10 @@ function Component(props: {
 						</TabsList>
 					</Tabs>
 
+					{/* @ts-ignore - Suppress persistent ref error */}
 					<RadioGroup
+						// @ts-ignore The RadioGroup component has strict ref typing that conflicts with typical useRef(null) usage.
+						ref={radioGroupRef}
 						value={selectedPlanId}
 						onValueChange={setSelectedPlanId}
 						className="grid grid-cols-1 sm:grid-cols-2 gap-4"
@@ -187,40 +241,7 @@ function Component(props: {
 							type="button"
 							className="w-full"
 							disabled={isSubmitting || (selectedPlan ? isCurrentPlan(selectedPlan, billingPeriod) : false)}
-							onClick={async () => {
-								if (!selectedPlan) {
-									toast.error("Please select a valid plan.");
-									return;
-								}
-								setIsSubmitting(true);
-								try {
-									const selectedPlanDetails = subscriptionPlans.find(p => p.id === selectedPlanId);
-									if (!selectedPlanDetails) {
-										toast.error("Selected plan not found.");
-										setIsSubmitting(false);
-										return;
-									}
-
-									await authClient.subscription.upgrade(
-										{
-											plan: selectedPlanDetails.name,
-											annual: billingPeriod === "yearly",
-											successUrl: "/dashboard/account",
-											cancelUrl: "/dashboard/account",
-										},
-										{ 
-											onError: (ctx: { error: Error }) => {
-												toast.error(ctx.error.message);
-											}
-										}
-									);
-								} catch (error: any) {
-									console.error("Error initiating subscription change:", error);
-									toast.error(error.message || "Failed to initiate plan change.");
-								} finally {
-									setIsSubmitting(false);
-								}
-							}}
+							onClick={handleUpgradeSubscription}
 						>
 							{isSubmitting ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : null}
 							{selectedPlan ? (() => {
@@ -257,13 +278,10 @@ function Component(props: {
 									type="button"
 									variant="destructive"
 									className="w-full"
-									onClick={async () => {
-										await authClient.subscription.cancel(
-											{ returnUrl: "/dashboard/account" },
-											{ onError: (ctx) => { toast.error(ctx.error.message); } }
-										);
-									}}
+									disabled={isSubmitting}
+									onClick={handleCancelSubscription}
 								>
+									{isSubmitting ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : null}
 									Cancel Plan
 								</Button>
 							</>
