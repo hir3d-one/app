@@ -235,3 +235,12 @@ model Apikey {
 
   @@map("apikey")
 }
+
+model Test {
+  id String @id
+  name String @db.Text
+  createdAt DateTime
+  updatedAt DateTime
+
+  @@map("test")
+}
