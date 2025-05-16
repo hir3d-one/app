@@ -182,33 +182,12 @@ export const auth = betterAuth({
 			createCustomer: true,
 			subscription: {
 				enabled: true,
-				organization: {
-					enabled: true,
-				},
-				authorizeReference: async ({ user, session, referenceId, action }) => {
-					return true;
-				},
 				// Map plans from config to better-auth structure
 				plans: subscriptionPlans
 					.map(plan => ({
 						name: plan.name,
 						priceId: plan.stripePriceId, // Monthly/Default price ID
-						annualDiscountPriceId: plan.stripePriceIdAnnual, // Annual price ID
-						// Add free trial config specifically for the starter/pro plan if needed
-						...(plan.id === PlusPlan.id && {
-							freeTrial: {
-								days: 7,
-								onTrialStart: async (subscription: any) => {
-									console.log(`Trial started for subscription: ${subscription.id} (${plan.name})`);
-								},
-								onTrialEnd: async ({ subscription }: { subscription: any }) => {
-									console.log(`Trial ending soon for: ${subscription.id} (${plan.name})`);
-								},
-								onTrialExpired: async (subscription: any) => {
-									console.log(`Trial expired for subscription: ${subscription.id} (${plan.name})`);
-								},
-							},
-						})
+						annualDiscountPriceId: plan.stripePriceIdAnnual || undefined
 					})),
 				/* Example of original hardcoded plans for reference:
 					plans: [
