@@ -2,9 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -35,13 +33,32 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useDashboardFlags } from "@/contexts/dashboard-flags-context";
 
-// Utility Bar Component - Simplified: No more compact mode, specific filters.
-const UtilityBar = ({ onDetailedSearch, onFilter, onSort, onBulkAction, selectedRowCount, initialSearchQuery }) => {
+interface Job {
+  id: string;
+  title: string;
+  status: "Active" | "Paused" | "Archived" | "Draft";
+  createdDate: string;
+  lastUpdated: string;
+  matches: number;
+  shortlisted: number;
+  isPromoted?: boolean;
+}
+
+interface UtilityBarProps {
+  onDetailedSearch: (query: string) => void;
+  onFilter: (filterName: "owner" | "department", value: string) => void;
+  onSort: (value: string) => void;
+  onBulkAction: (action: string, value?: boolean) => void;
+  selectedRowCount: number;
+  initialSearchQuery?: string;
+}
+
+const UtilityBar: React.FC<UtilityBarProps> = ({ onDetailedSearch, onFilter, onSort, onBulkAction, selectedRowCount, initialSearchQuery }) => {
   return (
     <div className="my-4 p-3.5 border border-neutral-800 rounded-lg bg-neutral-900/80 shadow-md">
       <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
-        {/* Detailed Search Field */}
         <div className="relative flex-grow md:flex-grow-0 md:w-1/3 lg:w-2/5">
           <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
           <Input
@@ -52,8 +69,6 @@ const UtilityBar = ({ onDetailedSearch, onFilter, onSort, onBulkAction, selected
             defaultValue={initialSearchQuery}
           />
         </div>
-
-        {/* Filter Dropdowns: Owner & Department */}
         <div className="flex items-center gap-2 flex-wrap md:flex-nowrap">
           <Select onValueChange={(value) => onFilter("owner", value)}>
             <SelectTrigger className="w-full md:w-auto h-9 bg-neutral-800 border-neutral-700 text-neutral-300 data-[placeholder]:text-neutral-500 focus:ring-neutral-600 focus:border-neutral-600">
@@ -62,7 +77,6 @@ const UtilityBar = ({ onDetailedSearch, onFilter, onSort, onBulkAction, selected
             </SelectTrigger>
             <SelectContent className="bg-neutral-800 border-neutral-700 text-neutral-300">
               <SelectItem value="all" className="hover:bg-neutral-700">All Owners</SelectItem>
-              {/* Populate with actual owners */}
             </SelectContent>
           </Select>
           <Select onValueChange={(value) => onFilter("department", value)}>
@@ -72,12 +86,9 @@ const UtilityBar = ({ onDetailedSearch, onFilter, onSort, onBulkAction, selected
             </SelectTrigger>
             <SelectContent className="bg-neutral-800 border-neutral-700 text-neutral-300">
               <SelectItem value="all" className="hover:bg-neutral-700">All Departments</SelectItem>
-              {/* Populate with actual departments */}
             </SelectContent>
           </Select>
         </div>
-
-        {/* Sort Dropdown */}
         <div className="md:ml-auto">
           <Select onValueChange={onSort}>
             <SelectTrigger className="w-full md:w-auto h-9 bg-neutral-800 border-neutral-700 text-neutral-300 data-[placeholder]:text-neutral-500 focus:ring-neutral-600 focus:border-neutral-600">
@@ -95,7 +106,6 @@ const UtilityBar = ({ onDetailedSearch, onFilter, onSort, onBulkAction, selected
           </Select>
         </div>
       </div>
-
       {selectedRowCount > 0 && (
         <div className="mt-3 pt-3 border-t border-neutral-800 flex items-center gap-2">
           <Checkbox id="bulk-select-all" className="border-neutral-700 data-[state=checked]:bg-neutral-700 data-[state=checked]:text-neutral-300" onCheckedChange={(checked) => onBulkAction("selectAll", checked as boolean)} />
@@ -111,17 +121,6 @@ const UtilityBar = ({ onDetailedSearch, onFilter, onSort, onBulkAction, selected
   );
 };
 
-interface Job {
-  id: string;
-  title: string;
-  status: "Active" | "Paused" | "Archived" | "Draft";
-  createdDate: string;
-  lastUpdated: string;
-  matches: number;
-  shortlisted: number;
-  isPromoted?: boolean;
-}
-
 const mockJobs: Job[] = [
   { id: "job1", title: "Senior Frontend Developer", status: "Active", createdDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), lastUpdated: "2 hours ago", matches: 150, shortlisted: 25, isPromoted: true },
   { id: "job2", title: "UX Designer Pro", status: "Paused", createdDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), lastUpdated: "1 day ago", matches: 75, shortlisted: 10 },
@@ -129,7 +128,7 @@ const mockJobs: Job[] = [
   { id: "job4", title: "Product Manager - Mobile", status: "Draft", createdDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), lastUpdated: "yesterday", matches: 0, shortlisted: 0 },
 ];
 
-const JobActions = ({ job }: { job: Job }) => {
+const JobActions: React.FC<{ job: Job }> = ({ job }) => {
   const actions = [
     { label: "View Matches", icon: FileText, onClick: () => console.log("View", job.id) },
     { label: "Edit", icon: Edit3, onClick: () => console.log("Edit", job.id) },
@@ -160,7 +159,7 @@ const JobActions = ({ job }: { job: Job }) => {
   );
 };
 
-const StatusBadge = ({ status }: { status: Job["status"] }) => {
+const StatusBadge: React.FC<{ status: Job["status"] }> = ({ status }) => {
   const statusStyles: Record<Job["status"], string> = {
     Active: "bg-green-700/30 text-green-300 border border-green-600/50",
     Paused: "bg-yellow-700/30 text-yellow-300 border border-yellow-600/50",
@@ -174,7 +173,14 @@ const StatusBadge = ({ status }: { status: Job["status"] }) => {
   );
 };
 
-const JobResultsTable = ({ jobs, selectedRows, onRowSelect }) => {
+interface JobResultsTableProps {
+  jobs: Job[];
+  selectedRows: Set<string>;
+  onRowSelect: (item: string | Set<string>) => void;
+  showPromotedSection?: boolean;
+}
+
+const JobResultsTable: React.FC<JobResultsTableProps> = ({ jobs, selectedRows, onRowSelect, showPromotedSection }) => {
   const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
   return (
     <Table className="text-neutral-300">
@@ -183,7 +189,7 @@ const JobResultsTable = ({ jobs, selectedRows, onRowSelect }) => {
           <TableHead className="w-[50px] px-3">
             <Checkbox
               checked={selectedRows.size === jobs.length && jobs.length > 0}
-              onCheckedChange={(checked) => onRowSelect(checked ? new Set(jobs.map(job => job.id)) : new Set())}
+              onCheckedChange={(checked: boolean | 'indeterminate') => onRowSelect(checked === true ? new Set(jobs.map(job => job.id)) : new Set())}
               aria-label="Select all rows"
               className="border-neutral-700 data-[state=checked]:bg-neutral-700 data-[state=checked]:text-neutral-300"
             />
@@ -194,12 +200,12 @@ const JobResultsTable = ({ jobs, selectedRows, onRowSelect }) => {
           <TableHead className="text-neutral-400 font-medium">Last Updated</TableHead>
           <TableHead className="text-right text-neutral-400 font-medium">Matches</TableHead>
           <TableHead className="text-right text-neutral-400 font-medium">Shortlisted</TableHead>
-          <TableHead className="text-neutral-400 font-medium">Promoted</TableHead>
+          {showPromotedSection && <TableHead className="text-neutral-400 font-medium">Promoted</TableHead>}
           <TableHead className="text-right text-neutral-400 font-medium pr-3">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody className="border-neutral-800">
-        {jobs.map((job) => (
+        {jobs.map((job: Job) => (
           <TableRow key={job.id} data-state={selectedRows.has(job.id) && "selected"} className="border-b border-neutral-800 hover:bg-neutral-900/50 data-[state=selected]:bg-neutral-800/70">
             <TableCell className="px-3">
               <Checkbox
@@ -220,13 +226,15 @@ const JobResultsTable = ({ jobs, selectedRows, onRowSelect }) => {
             <TableCell>{job.lastUpdated}</TableCell>
             <TableCell className="text-right">{job.matches}</TableCell>
             <TableCell className="text-right">{job.shortlisted}</TableCell>
-            <TableCell>
-              {job.isPromoted && (
-                <Badge variant="outline" className="flex items-center w-fit px-2 py-0.5 text-xs bg-purple-700/30 text-purple-300 border border-purple-600/50">
-                  <Megaphone className="mr-1 h-3.5 w-3.5" /> Promoted
-                </Badge>
-              )}
-            </TableCell>
+            {showPromotedSection && (
+              <TableCell>
+                {job.isPromoted && (
+                  <Badge variant="outline" className="flex items-center w-fit px-2 py-0.5 text-xs bg-purple-700/30 text-purple-300 border border-purple-600/50">
+                    <Megaphone className="mr-1 h-3.5 w-3.5" /> Promoted
+                  </Badge>
+                )}
+              </TableCell>
+            )}
             <TableCell className="text-right pr-3"><JobActions job={job} /></TableCell>
           </TableRow>
         ))}
@@ -235,11 +243,18 @@ const JobResultsTable = ({ jobs, selectedRows, onRowSelect }) => {
   );
 };
 
-const JobResultsCards = ({ jobs, selectedRows, onRowSelect }) => {
+interface JobResultsCardsProps {
+  jobs: Job[];
+  selectedRows: Set<string>;
+  onRowSelect: (item: string | Set<string>) => void;
+  showPromotedSection?: boolean;
+}
+
+const JobResultsCards: React.FC<JobResultsCardsProps> = ({ jobs, selectedRows, onRowSelect, showPromotedSection }) => {
   const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
   return (
     <div className="grid gap-4 sm:grid-cols-2">
-      {jobs.map((job) => (
+      {jobs.map((job: Job) => (
         <Card key={job.id} className={cn("bg-neutral-900 border-neutral-800 text-neutral-300", selectedRows.has(job.id) && "ring-2 ring-neutral-500")}>
           <CardHeader className="flex flex-row items-start justify-between pb-2 gap-2">
             <div className="flex items-start space-x-3 flex-grow">
@@ -275,7 +290,7 @@ const JobResultsCards = ({ jobs, selectedRows, onRowSelect }) => {
               <span className="text-neutral-400">Created</span>
               <span>{formatDate(job.createdDate)}</span>
             </div>
-            {job.isPromoted && (
+            {showPromotedSection && job.isPromoted && (
               <div className="flex justify-start items-center pt-1">
                 <Badge variant="outline" className="flex items-center px-2 py-0.5 text-xs bg-purple-700/30 text-purple-300 border border-purple-600/50">
                   <Megaphone className="mr-1 h-3.5 w-3.5" /> Promoted
@@ -290,6 +305,7 @@ const JobResultsCards = ({ jobs, selectedRows, onRowSelect }) => {
 };
 
 export default function JobsIndexPage() {
+  const { showPromoteJobs: showPromotedSection } = useDashboardFlags();
   const [activeTab, setActiveTab] = React.useState("active");
   const [quickSearchQuery, setQuickSearchQuery] = React.useState("");
   const [detailedSearchQuery, setDetailedSearchQuery] = React.useState("");
@@ -322,44 +338,29 @@ export default function JobsIndexPage() {
 
   const displayedJobs = React.useMemo(() => {
     let tempJobs = mockJobs;
-
-    // Tab filter
     if (activeTab === "active") {
       tempJobs = tempJobs.filter(job => job.status === "Active" || job.status === "Paused" || job.status === "Draft");
     } else if (activeTab === "archived") {
       tempJobs = tempJobs.filter(job => job.status === "Archived");
     }
-
-    // Top bar status filter
-    if (filters.status && filters.status !== 'all') {
-      tempJobs = tempJobs.filter(job => job.status.toLowerCase() === filters.status.toLowerCase());
+    if (typeof filters.status === 'string' && filters.status !== 'all') {
+      const statusFilter = filters.status;
+      tempJobs = tempJobs.filter(job => job.status.toLowerCase() === statusFilter.toLowerCase());
     }
-
-    // Top bar quick search (applies to title only for now)
     if (quickSearchQuery) {
       tempJobs = tempJobs.filter(job => 
         job.title.toLowerCase().includes(quickSearchQuery.toLowerCase())
       );
     }
-
-    // Detailed search from UtilityBar (applies to title or ID)
     if (detailedSearchQuery) {
       tempJobs = tempJobs.filter(job => 
         job.title.toLowerCase().includes(detailedSearchQuery.toLowerCase()) ||
         job.id.toLowerCase().includes(detailedSearchQuery.toLowerCase())
       );
     }
-    
-    // UtilityBar filters: owner, department (placeholders for now)
-    if (filters.owner && filters.owner !== 'all') {
-      // tempJobs = tempJobs.filter(job => job.owner?.toLowerCase() === filters.owner.toLowerCase());
-    }
-    if (filters.department && filters.department !== 'all') {
-      // tempJobs = tempJobs.filter(job => job.department?.toLowerCase() === filters.department.toLowerCase());
-    }
-
+    if (filters.owner && filters.owner !== 'all') { /* Placeholder */ }
+    if (filters.department && filters.department !== 'all') { /* Placeholder */ }
     // TODO: Implement sorting based on sortOrder
-
     return tempJobs;
   }, [activeTab, filters, quickSearchQuery, detailedSearchQuery, sortOrder]);
 
@@ -369,98 +370,88 @@ export default function JobsIndexPage() {
   };
 
   return (
-    <SidebarProvider>
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader title="Job Searches" />
-        <div className="flex flex-1 flex-col p-4 md:p-6 space-y-4 bg-neutral-950 text-neutral-300 min-h-screen">
-          {/* Top Control Bar */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
-            <Tabs defaultValue="active" className="w-auto" onValueChange={(value) => { setActiveTab(value); setSelectedRows(new Set()); }}>
-              <TabsList className="bg-neutral-900 p-0.5 rounded-md border border-neutral-800">
-                <TabsTrigger
-                  value="active"
-                  className="px-3 py-1 text-sm text-neutral-400 data-[state=active]:bg-neutral-100 data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm rounded-[0.2rem] transition-all duration-150"
-                >
-                  <ListChecks size={16} className="-ms-0.5 me-1.5" /> Active
-                </TabsTrigger>
-                <TabsTrigger
-                  value="archived"
-                  className="px-3 py-1 text-sm text-neutral-400 data-[state=active]:bg-neutral-100 data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm rounded-[0.2rem] transition-all duration-150"
-                >
-                  <ArchiveIcon size={16} className="-ms-0.5 me-1.5" /> Archived
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-
-            <div className="flex items-center gap-2 flex-grow md:flex-grow-0 md:justify-end">
-              <div className="relative flex-grow md:flex-grow-0 md:w-48 lg:w-56">
-                <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
-                <Input 
-                  type="search" 
-                  placeholder="Search..."
-                  className="h-9 pl-9 w-full bg-neutral-800 border-neutral-700 text-neutral-300 placeholder:text-neutral-500 focus:ring-neutral-600 focus:border-neutral-600 rounded-md"
-                  onChange={(e) => handleQuickSearch(e.target.value)}
-                />
-              </div>
-              <Select value={filters.status || 'all'} onValueChange={(value) => handleFilter("status", value)}>
-                <SelectTrigger className="h-9 w-auto md:w-[150px] bg-neutral-800 border-neutral-700 text-neutral-300 data-[placeholder]:text-neutral-500 focus:ring-neutral-600 focus:border-neutral-600 rounded-md">
-                  <ListFilter className="mr-2 h-4 w-4 opacity-70" /> 
-                  <SelectValue placeholder="All Statuses" />
-                </SelectTrigger>
-                <SelectContent className="bg-neutral-800 border-neutral-700 text-neutral-300">
-                  <SelectItem value="all" className="hover:bg-neutral-700">All Statuses</SelectItem>
-                  <SelectItem value="Active" className="hover:bg-neutral-700">Active</SelectItem>
-                  <SelectItem value="Paused" className="hover:bg-neutral-700">Paused</SelectItem>
-                  <SelectItem value="Draft" className="hover:bg-neutral-700">Draft</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button asChild className="h-9 bg-neutral-50 hover:bg-neutral-200 text-neutral-900 rounded-md shadow-sm">
-                <Link href="/dashboard/jobs/create">
-                  <PlusCircle className="mr-1.5 h-4.5 w-4.5" /> New Job
-                </Link>
-              </Button>
-            </div>
-          </div>
-          
-          {/* Main Utility Bar */}
-          <UtilityBar 
-            onDetailedSearch={handleDetailedSearch}
-            initialSearchQuery={detailedSearchQuery} 
-            onFilter={handleFilter} 
-            onSort={handleSort} 
-            onBulkAction={handleBulkAction} 
-            selectedRowCount={selectedRows.size}
-          />
-
-          {/* Results Area */}
-          {displayedJobs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <EmptyState
-                title={activeTab === "active" ? "No Active Job Searches" : "No Archived Job Searches"}
-                description={`Adjust your search or filter criteria, or create a new job search to get started.`}
-                icons={[Briefcase]}
-                className="bg-transparent border-neutral-800"
-                action={activeTab === "active" ? {
-                  label: "Create New Job Search",
-                  onClick: () => window.location.href = "/dashboard/jobs/create",
-                } : undefined}
+    <>
+      <SiteHeader title="Job Searches" />
+      <div className="flex flex-1 flex-col p-4 md:p-6 space-y-4 bg-neutral-950 text-neutral-300 min-h-screen">
+        {/* Top Control Bar */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
+          <Tabs defaultValue="active" className="w-auto" onValueChange={(value) => { setActiveTab(value); setSelectedRows(new Set()); }}>
+            <TabsList className="bg-neutral-900 p-0.5 rounded-md border border-neutral-800">
+              <TabsTrigger
+                value="active"
+                className="px-3 py-1 text-sm text-neutral-400 data-[state=active]:bg-neutral-100 data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm rounded-[0.2rem] transition-all duration-150"
+              >
+                <ListChecks size={16} className="-ms-0.5 me-1.5" /> Active
+              </TabsTrigger>
+              <TabsTrigger
+                value="archived"
+                className="px-3 py-1 text-sm text-neutral-400 data-[state=active]:bg-neutral-100 data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm rounded-[0.2rem] transition-all duration-150"
+              >
+                <ArchiveIcon size={16} className="-ms-0.5 me-1.5" /> Archived
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <div className="flex items-center gap-2 flex-grow md:flex-grow-0 md:justify-end">
+            <div className="relative flex-grow md:flex-grow-0 md:w-48 lg:w-56">
+              <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+              <Input 
+                type="search" 
+                placeholder="Search..."
+                className="h-9 pl-9 w-full bg-neutral-800 border-neutral-700 text-neutral-300 placeholder:text-neutral-500 focus:ring-neutral-600 focus:border-neutral-600 rounded-md"
+                onChange={(e) => handleQuickSearch(e.target.value)}
               />
             </div>
-          ) : (
-            <>
-              <div className="hidden md:block border border-neutral-800 rounded-lg shadow-md overflow-hidden">
-                <JobResultsTable jobs={displayedJobs} selectedRows={selectedRows} onRowSelect={handleRowSelect} />
-              </div>
-              <div className="block md:hidden">
-                <JobResultsCards jobs={displayedJobs} selectedRows={selectedRows} onRowSelect={handleRowSelect} />
-              </div>
-            </>
-          )}
-          {/* TODO: Pagination / infinite scroll (≥25 rows) */}
-          {/* TODO: Metrics header (optional, above tabs) */}
+            <Select value={filters.status || 'all'} onValueChange={(value) => handleFilter("status", value)}>
+              <SelectTrigger className="h-9 w-auto md:w-[150px] bg-neutral-800 border-neutral-700 text-neutral-300 data-[placeholder]:text-neutral-500 focus:ring-neutral-600 focus:border-neutral-600 rounded-md">
+                <ListFilter className="mr-2 h-4 w-4 opacity-70" /> 
+                <SelectValue placeholder="All Statuses" />
+              </SelectTrigger>
+              <SelectContent className="bg-neutral-800 border-neutral-700 text-neutral-300">
+                <SelectItem value="all" className="hover:bg-neutral-700">All Statuses</SelectItem>
+                <SelectItem value="Active" className="hover:bg-neutral-700">Active</SelectItem>
+                <SelectItem value="Paused" className="hover:bg-neutral-700">Paused</SelectItem>
+                <SelectItem value="Draft" className="hover:bg-neutral-700">Draft</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button asChild className="h-9 bg-neutral-50 hover:bg-neutral-200 text-neutral-900 rounded-md shadow-sm">
+              <Link href="/dashboard/jobs/create">
+                <PlusCircle className="mr-1.5 h-4.5 w-4.5" /> New Job
+              </Link>
+            </Button>
+          </div>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+        <UtilityBar 
+          onDetailedSearch={handleDetailedSearch}
+          initialSearchQuery={detailedSearchQuery} 
+          onFilter={handleFilter} 
+          onSort={handleSort} 
+          onBulkAction={handleBulkAction} 
+          selectedRowCount={selectedRows.size}
+        />
+        {displayedJobs.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <EmptyState
+              title={activeTab === "active" ? "No Active Job Searches" : "No Archived Job Searches"}
+              description={`Adjust your search or filter criteria, or create a new job search to get started.`}
+              icons={[Briefcase]}
+              className="bg-transparent border-neutral-800"
+              action={activeTab === "active" ? {
+                label: "Create New Job Search",
+                onClick: () => window.location.href = "/dashboard/jobs/create",
+              } : undefined}
+            />
+          </div>
+        ) : (
+          <>
+            <div className="hidden md:block border border-neutral-800 rounded-lg shadow-md overflow-hidden">
+              <JobResultsTable jobs={displayedJobs} selectedRows={selectedRows} onRowSelect={handleRowSelect} showPromotedSection={showPromotedSection} />
+            </div>
+            <div className="block md:hidden">
+              <JobResultsCards jobs={displayedJobs} selectedRows={selectedRows} onRowSelect={handleRowSelect} showPromotedSection={showPromotedSection} />
+            </div>
+          </>
+        )}
+      </div>
+    </>
   );
 } 

@@ -2,10 +2,10 @@
   "name": "@hir3d/db",
   "version": "0.0.0",
   "devDependencies": {
-    "prisma": "^6.5.0"
+    "prisma": "^6.8.2"
   },
   "dependencies": {
-    "@prisma/client": "^6.5.0"
+    "@prisma/client": "^6.8.2"
   },
   "scripts": {
     "db:generate": "prisma generate",
