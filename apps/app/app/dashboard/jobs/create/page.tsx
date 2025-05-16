@@ -1,8 +1,8 @@
 "use client";
 
-import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+// import { AppSidebar } from "@/components/app-sidebar";
+// import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { PlaceholdersAndVanishInputDemo } from "@/components/ui/placeholders-and-vanish-input";
 import { Spotlight } from "@/components/ui/spotlight";
 import { cn } from "@/lib/utils";
@@ -35,16 +35,13 @@ function JobsCreateBackground({ children }: { children: React.ReactNode }) {
 
 export default function CreateJobPage() {
   return (
-    <SidebarProvider>
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader title="Create New Job" />
-        <div className="flex flex-1 flex-col">
-          <JobsCreateBackground>
-            <PlaceholdersAndVanishInputDemo />
-          </JobsCreateBackground>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+    <>
+      <SiteHeader title="Create New Job" />
+      <div className="flex flex-1 flex-col">
+        <JobsCreateBackground>
+          <PlaceholdersAndVanishInputDemo />
+        </JobsCreateBackground>
+      </div>
+    </>
   );
 } 

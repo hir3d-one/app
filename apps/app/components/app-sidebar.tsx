@@ -29,6 +29,7 @@ import {
   PlusCircleIcon,
   MailIcon,
 } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import Link from "next/link"
 
 import { NavDocuments } from "@/components/nav-documents"
@@ -51,7 +52,15 @@ import { Logo } from "@/components/logo"
 import { useSession } from "@/lib/auth-client"
 import { useState, useEffect } from "react"
 
-const data = {
+// Define the shape of navigation items if not already implicitly defined by NavMain props
+interface NavItem {
+  title: string;
+  url: string;
+  icon: LucideIcon;
+  disabled?: boolean; // Optional: if you ever want to disable rather than hide
+}
+
+const baseNavData = {
   user: {
     name: "shadcn",
     email: "m@example.com",
@@ -68,33 +77,13 @@ const data = {
     { title: "Templates", url: "/dashboard/templates", icon: BookUserIcon },
     { title: "Archived Jobs", url: "/dashboard/jobs/archived", icon: ArchiveIcon },
   ],
-  navGrowthInsights: [
-    { title: "Promote Jobs", url: "/dashboard/promote", icon: ZapIcon },
-    { title: "Analytics", url: "/dashboard/analytics", icon: BarChartIcon },
-  ],
+  // Growth Insights will be constructed dynamically
   navSecondary: [
-    {
-      title: "Account",
-      url: "/dashboard/account",
-      icon: UserCircleIcon,
-    },
-    // {
-    //   title: "Billing",
-    //   url: "/dashboard/account/billing",
-    //   icon: CreditCardIcon,
-    // },
-    {
-      title: "Notifications",
-      url: "/dashboard/notifications",
-      icon: BellIcon,
-    },
-    {
-      title: "Help & Support",
-      url: "/dashboard/help",
-      icon: HelpCircleIcon,
-    },
+    { title: "Account", url: "/dashboard/account", icon: UserCircleIcon },
+    { title: "Notifications", url: "/dashboard/notifications", icon: BellIcon },
+    { title: "Help & Support", url: "/dashboard/help", icon: HelpCircleIcon },
   ],
-}
+};
 
 function NavUserSidebarSkeleton() {
   return (
@@ -109,10 +98,25 @@ function NavUserSidebarSkeleton() {
   );
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+// Define props for AppSidebar, including the feature flags
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  showPromoteJobs?: boolean;
+  showAnalytics?: boolean;
+}
+
+export function AppSidebar({ showPromoteJobs, showAnalytics, ...props }: AppSidebarProps) {
   const { data: session, isPending } = useSession();
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
+
+  // Dynamically construct navGrowthInsights based on feature flags
+  const navGrowthInsights: NavItem[] = [];
+  if (showPromoteJobs) {
+    navGrowthInsights.push({ title: "Promote Jobs", url: "/dashboard/promote", icon: ZapIcon });
+  }
+  if (showAnalytics) {
+    navGrowthInsights.push({ title: "Analytics", url: "/dashboard/analytics", icon: BarChartIcon });
+  }
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -142,10 +146,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
 
-        <NavMain items={data.navMain} />
-        <NavMain items={data.navMyTools} title="MY TOOLS" />
-        <NavMain items={data.navGrowthInsights} title="GROWTH & INSIGHTS" />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={baseNavData.navMain} />
+        <NavMain items={baseNavData.navMyTools} title="MY TOOLS" />
+        {/* Only render Growth & Insights section if there are items to show */}
+        {navGrowthInsights.length > 0 && (
+          <NavMain items={navGrowthInsights} title="GROWTH & INSIGHTS" />
+        )}
+        <NavSecondary items={baseNavData.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         {mounted && !isPending && session ? (
