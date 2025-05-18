@@ -10,7 +10,16 @@ import { toast } from "sonner";
 
 import { SiteHeader } from "@/components/site-header";
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
-import { Timeline, TimelineContent, TimelineItem } from "@/components/ui/timeline";
+import {
+  Timeline,
+  TimelineContent,
+  TimelineDate,
+  TimelineHeader,
+  TimelineIndicator,
+  TimelineItem,
+  TimelineSeparator,
+  TimelineTitle,
+} from "@/components/ui/timeline";
 import { Spotlight } from "@/components/ui/spotlight";
 import { cn } from "@/lib/utils";
 import {
@@ -22,6 +31,11 @@ import {
   Loader2Icon,
   XCircleIcon,
   MoreHorizontalIcon,
+  SparklesIcon,
+  RocketIcon,
+  CheckIcon,
+  AlertTriangleIcon,
+  InfoIcon,
 } from "lucide-react";
 
 type DemoStepConfigItem = (typeof initialStepsConfig)[number];
@@ -42,9 +56,9 @@ const stepNameIcons: Record<string, LucideIcon> = {
 };
 
 const stepStatusIcons: Record<UIStep["status"], LucideIcon> = {
-  pending: Loader2Icon,
+  pending: MoreHorizontalIcon,
   "in-progress": Loader2Icon,
-  completed: CheckCircleIcon,
+  completed: CheckIcon,
   failed: XCircleIcon,
 };
 
@@ -86,7 +100,7 @@ function getCalculatedStepStatus(
 
 function JobsCreateBackground({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex flex-1 w-full items-center justify-center bg-white dark:bg-black">
+    <div className="relative flex flex-1 w-full items-center justify-center bg-background overflow-hidden">
       <Spotlight
         className="-top-20 left-0 md:top-12 md:left-[24rem]"
         fill="white"
@@ -94,11 +108,12 @@ function JobsCreateBackground({ children }: { children: React.ReactNode }) {
       <div className={cn(
         "absolute inset-0",
         "[background-size:20px_20px]",
-        "[background-image:radial-gradient(#d4d4d4_1px,transparent_1px)]",
-        "dark:[background-image:radial-gradient(#404040_1px,transparent_1px)]",
+        "[background-image:radial-gradient(#e0e0e0_1px,transparent_1px)]",
+        "dark:[background-image:radial-gradient(#333333_1px,transparent_1px)]",
+        "opacity-70",
       )} />
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] dark:bg-black" />
-      <div className="relative z-20 w-full h-full flex flex-col items-center justify-center p-4 md:p-6 space-y-8">
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
+      <div className="relative z-20 w-full h-full flex flex-col items-center justify-center px-4 md:p-4">
         {children}
       </div>
     </div>
@@ -232,71 +247,189 @@ export default function CreateJobPage() {
   ];
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col bg-background overflow-hidden">
       <SiteHeader title="Create New Job" />
-      <div className="flex flex-1 flex-col">
+      
+      <div className="flex-1 flex flex-col overflow-hidden">
         <JobsCreateBackground>
-          <div className="container mx-auto max-w-2xl w-full flex flex-col items-center space-y-8"> 
-            <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-gray-200">Create New Background Job</h1>
-            
-            <PlaceholdersAndVanishInput 
-              placeholders={placeholders}
-              onSubmit={handleInputSubmit}
-              isLoading={isJobProcessing}
-            />
-
-            {currentRunId && (
-              <div className="mt-10 p-6 sm:p-8 bg-white dark:bg-neutral-900 shadow-xl rounded-xl w-full max-w-md">
-                <h2 className="text-2xl font-semibold mb-6 text-center text-gray-700 dark:text-gray-300">Job Progress</h2>
-                <Timeline value={currentActiveNumericalStep} orientation="vertical" className="space-y-1">
-                  {uiSteps.map((step, index) => {
-                    const IconForStepName = step.icon;
-                    const IconForStatus = stepStatusIcons[step.status];
-                    const jobStatusMeta = run?.metadata?.jobStatusUpdate as JobStatusMetadata | undefined;
-                    const currentProgressText = jobStatusMeta?.currentStep === step.name && jobStatusMeta?.progress && step.status === 'in-progress' 
-                      ? ` (${jobStatusMeta.progress})` 
-                      : '';
-                    return (
-                      <TimelineItem 
-                        key={step.id} 
-                        step={index + 1} 
-                        className="m-0! flex-row items-center gap-x-4 py-3.5 border-b border-gray-200 dark:border-neutral-700 last:border-b-0"
-                      >
-                        <div className={`flex items-center justify-center w-10 h-10 min-w-[2.5rem] rounded-full 
-                          ${step.status === 'completed' ? 'bg-green-100 dark:bg-green-900/50' : 
-                            step.status === 'in-progress' ? 'bg-blue-100 dark:bg-blue-900/50' : 
-                            step.status === 'failed' ? 'bg-red-100 dark:bg-red-900/50' : 'bg-gray-100 dark:bg-neutral-800'}`}
-                        >
-                          {step.status === "in-progress" ? (
-                            <IconForStatus className="text-blue-500 dark:text-blue-400 animate-spin" size={20} />
-                          ) : step.status === "completed" ? (
-                            <IconForStatus className="text-green-600 dark:text-green-400" size={20} />
-                          ) : step.status === "failed" ? (
-                            <IconForStatus className="text-red-600 dark:text-red-400" size={20} />
-                          ) : ( 
-                            <IconForStepName className="text-gray-500 dark:text-gray-400" size={20} />
-                          )}
-                        </div>
-                        <TimelineContent className="text-gray-700 dark:text-gray-300 flex-1 min-w-0">
-                          <p className={`font-medium truncate ${ 
-                            step.status === "completed" ? "line-through text-gray-400 dark:text-gray-500" : 
-                            step.status === "failed" ? "text-red-700 dark:text-red-400" : "text-gray-800 dark:text-gray-200"}`}
-                          >
-                            {step.name}
-                          </p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">
-                            {step.status}{currentProgressText}
-                          </p>
-                        </TimelineContent>
-                      </TimelineItem>
-                    );
-                  })}
-                </Timeline>
+          <div className={cn(
+            "container mx-auto max-w-3xl w-full flex flex-col transition-all duration-500 ease-in-out",
+            currentRunId 
+              ? "justify-start items-center pt-0" 
+              : "justify-center items-center h-[calc(100vh-64px)]"
+          )}>  
+            <div className="flex flex-col items-center w-full max-w-2xl">
+              {/* Enhanced Header Section */}
+              <div className={cn(
+                "text-center transition-all duration-500 w-full",
+                currentRunId ? "mb-2 scale-90 transform origin-top space-y-1" : "mb-6 space-y-2" 
+              )}>
+                <div className={cn(
+                  "inline-flex items-center justify-center bg-primary/10 rounded-full transition-all duration-500",
+                  currentRunId ? "p-1.5 mb-1" : "p-2 mb-3"
+                )}>
+                  <SparklesIcon className={cn(
+                    "text-primary transition-all duration-500",
+                    currentRunId ? "h-5 w-5" : "h-6 w-6"
+                  )} />
+                </div>
+                <h1 className={cn(
+                  "font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70 transition-all duration-500",
+                  currentRunId ? "text-2xl md:text-3xl" : "text-3xl md:text-4xl"
+                )}>
+                  Create New Job Search
+                </h1>
+                <p className={cn(
+                  "text-muted-foreground max-w-md mx-auto transition-all duration-500",
+                  currentRunId ? "text-sm" : ""
+                )}>
+                  Describe your job in natural language, and we'll create a draft for you to refine.
+                </p>
               </div>
-            )}
+              
+              {/* Input Component - No card wrapper */}
+              <div className="w-full mx-auto">
+                <PlaceholdersAndVanishInput 
+                  placeholders={placeholders}
+                  onSubmit={handleInputSubmit}
+                  isLoading={isJobProcessing}
+                />
+              </div>
+            </div>
+
+            {/* Progress Timeline Card */}
+            <div className={cn(
+              "w-full max-w-2xl mt-3 bg-card border shadow-lg rounded-xl overflow-hidden transition-all duration-500 ease-in-out",
+              currentRunId ? "opacity-100 max-h-[1000px]" : "opacity-0 max-h-0"
+            )}>
+              {currentRunId && (
+                <>
+                  <div className="bg-muted/50 border-b px-5 py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <RocketIcon className="h-4 w-4 text-primary" />
+                      <h2 className="text-lg font-semibold">Job Progress</h2>
+                    </div>
+                    {isJobProcessing && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground animate-pulse">
+                        <Loader2Icon className="h-3 w-3 animate-spin" />
+                        <span>Processing...</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="p-3 pt-4 bg-black text-white">
+                    <div className="space-y-3">
+                      {uiSteps.map((step, index) => {
+                        const IconForStepName = step.icon;
+                        const IconForStatus = stepStatusIcons[step.status];
+                        const jobStatusMeta = run?.metadata?.jobStatusUpdate as JobStatusMetadata | undefined;
+                        const currentProgressText = jobStatusMeta?.currentStep === step.name && jobStatusMeta?.progress && step.status === 'in-progress' 
+                          ? jobStatusMeta.progress
+                          : '';
+                        
+                        const isCompleted = step.status === 'completed';
+                        const isActive = step.status === 'in-progress';
+                        const isFailed = step.status === 'failed';
+                        const isPending = step.status === 'pending';
+                        
+                        // Determine step number display
+                        let stepNumberDisplay = `${index + 1}/${uiSteps.length}`;
+                        if (index === uiSteps.length - 1) {
+                          stepNumberDisplay = `${index + 1}`;
+                        }
+                        
+                        return (
+                          <div key={step.id} className="relative pl-8">
+                            {/* Timeline connector line */}
+                            {index < uiSteps.length - 1 && (
+                              <div className="absolute left-2.5 top-5 w-0.5 h-[calc(100%+1px)] bg-gray-700" />
+                            )}
+                            
+                            {/* Status indicator */}
+                            <div className="absolute left-0 top-0">
+                              <div className={cn(
+                                "flex items-center justify-center w-5 h-5 rounded-full",
+                                isCompleted ? "bg-green-500 text-white" : 
+                                isActive ? "bg-white text-black" : 
+                                isFailed ? "bg-red-500 text-white" :
+                                "bg-gray-700 text-white"
+                              )}>
+                                {isCompleted ? (
+                                  <CheckIcon size={12} />
+                                ) : isActive ? (
+                                  <span className="text-[9px] font-medium">{stepNumberDisplay}</span>
+                                ) : isPending ? (
+                                  <span className="text-[9px] font-medium">{index + 1}</span>
+                                ) : (
+                                  <XCircleIcon size={12} />
+                                )}
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-0">
+                              {/* Status text */}
+                              <span className={cn(
+                                "text-xs font-medium",
+                                isCompleted ? "text-green-500" : 
+                                isActive ? "text-white" : 
+                                isFailed ? "text-red-500" :
+                                "text-gray-400"
+                              )}>
+                                {isCompleted ? "Completed" : 
+                                 isActive ? "Processing..." : 
+                                 isFailed ? "Failed" : 
+                                 "Pending"}
+                              </span>
+                              
+                              {/* Step title */}
+                              <h3 className={cn(
+                                "text-sm font-medium mb-0",
+                                isCompleted ? "text-green-500" : 
+                                isActive ? "text-white" : 
+                                isFailed ? "text-red-500" :
+                                "text-white"
+                              )}>
+                                {step.name}
+                              </h3>
+                              
+                              {/* Step description */}
+                              <p className="text-gray-400 text-xs mt-0.5">
+                                {isCompleted ? "This step completed successfully." :
+                                 isActive ? "Currently executing this step..." :
+                                 isFailed ? "This step encountered an error." :
+                                 "Waiting to start this step..."}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  
+                  {/* Status footer */}
+                  <div className="bg-[#111] px-5 py-2 border-t border-gray-800">
+                    <div className="flex items-start gap-2">
+                      <InfoIcon className="h-4 w-4 text-gray-400 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-gray-400">
+                          {isJobProcessing ? 
+                            "Processing your job request. This may take a moment..." :
+                            run?.status === "COMPLETED" ?
+                            "Job completed! Redirecting to draft page..." :
+                            run?.status && ["FAILED", "CRASHED", "CANCELED", "TIMED_OUT", "SYSTEM_FAILURE"].includes(run.status) ?
+                            "Job failed. Please try again with different parameters." :
+                            "Waiting for job to start..."
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </JobsCreateBackground>
       </div>
-    </>
+    </div>
   );
 } 
