@@ -9,50 +9,74 @@ export const demoTaskSteps = [
   { id: "step4", name: "Finalizing Job", duration: 2000 },
 ] as const; // Added 'as const' for stricter typing of names if used as discriminators
 
+type DemoStep = typeof demoTaskSteps[number];
+type StepName = DemoStep["name"];
+
 // Define the expected payload structure using Zod for validation if needed, or a simple interface.
 const JobPayloadSchema = z.object({
-  userId: z.string(),
-  jobDetails: z.string(), 
+  userId: z.string().min(1),
+  jobDetails: z.string().min(1),
 });
 // Infer the type from the Zod schema for use in the run function signature
 type JobPayload = z.infer<typeof JobPayloadSchema>;
+
+const JobStatusMetadataSchema = z.object({
+  currentStep: z.string(),
+  progress: z.string(),
+});
+
+interface JobOutput {
+  message: string;
+  draftId: string;
+  stepsCompleted: StepName[];
+}
 
 export const jobCreationDemoTask = task({
   id: "job-creation-demo",
   // payloadSchema removed; payload type is now defined on the run function's argument.
   run: async (payload: JobPayload, { ctx }) => {
-    // Optionally, you can still parse/validate if you want runtime assurance
-    // even if TypeScript provides static typing.
-    // const validatedPayload = JobPayloadSchema.parse(payload);
+    const validatedPayload = JobPayloadSchema.parse(payload);
+    await logger.info("Starting job creation demo task", { payload: validatedPayload });
 
-    await logger.info("Job creation demo task started", { payload /* or validatedPayload */, ctx });
+    const stepsCompleted: StepName[] = [];
 
     for (const [index, step] of demoTaskSteps.entries()) {
-      await logger.info(`Starting step: ${step.name}`);
-      // Update metadata to reflect current step and overall progress
-      await metadata.set("jobStatusUpdate", {
-        currentStep: step.name,
-        progress: `${index + 1}/${demoTaskSteps.length}`,
-      });
+      const stepNumber = index + 1;
+      const progress = `${stepNumber}/${demoTaskSteps.length}`;
       
-      // Simulate work being done for this step
+      const statusUpdate = JobStatusMetadataSchema.parse({
+        currentStep: step.name,
+        progress,
+      });
+
+      await metadata.set("jobStatusUpdate", statusUpdate);
+      await logger.info(`Processing step ${stepNumber}: ${step.name}`);
+      
       await wait.for({ seconds: step.duration / 1000 });
-      await logger.info(`Completed step: ${step.name}`);
+      stepsCompleted.push(step.name);
+      
+      await logger.info(`Completed step ${stepNumber}: ${step.name}`);
     }
-    
-    // Final metadata update
-    await metadata.set("jobStatusUpdate", {
+
+    const finalStatus = JobStatusMetadataSchema.parse({
       currentStep: "Completed",
       progress: "Done",
     });
-    await logger.info("Job creation demo task completed successfully!");
+    await metadata.set("jobStatusUpdate", finalStatus);
 
-    // Simulate draft creation and return its ID
-    const draftId = `draft_${new Date().getTime()}`;
-    return {
+    const output: JobOutput = {
       message: "Job created successfully and draft is ready.",
-      draftId: draftId,
-      stepsCompleted: demoTaskSteps.map(s => s.name),
+      draftId: generateDraftId(validatedPayload.userId),
+      stepsCompleted,
     };
+
+    await logger.info("Job creation completed successfully", { output });
+    return output;
   },
-}); 
+});
+
+function generateDraftId(userId: string): string {
+  const timestamp = Date.now();
+  const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+  return `${timestamp}${random}`;
+} 
