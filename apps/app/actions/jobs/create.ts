@@ -1,32 +1,27 @@
 "use server";
 
-import { betterAuth } from "better-auth";
-import { headers } from "next/headers";
+
 
 // Verify tsconfig.json in 'apps/app' maps '@/packages/*' to '../../packages/*'
 import { jobCreationDemoTask } from "@hir3d/tasks";
 // Hypothetical import for creating a temporary public access token
 // import { createSession } from "better-auth/next-js"; 
 
-export const auth = betterAuth({
-  //...
-})
-
-
-
 export async function startJobCreation(formData: FormData) {
 
 // calling get session on the server
-  const session = await auth.api.getSession(
-    {
-      headers: await headers() // some endpoint might require headers
-    }
-  )
+  // const session = await auth.api.getSession(
+  //   {
+  //     headers: await headers() // some endpoint might require headers
+  //   }
+  // )
+  
+  
+  // if (!session?.user?.id) {
+  //   return { error: "User not authenticated. Please sign in.", runId: null, accessToken: null };
+  // }
 
   
-  if (!session?.user?.id) {
-    return { error: "User not authenticated. Please sign in.", runId: null, accessToken: null };
-  }
 
   const jobDetails = formData.get("jobInput") as string;
   if (!jobDetails || jobDetails.trim() === "") {
@@ -36,7 +31,7 @@ export async function startJobCreation(formData: FormData) {
   try {
     // Trigger the task directly using the imported task object
     const runHandle = await jobCreationDemoTask.trigger({
-      userId: session.user.id,
+      userId: "123",
       jobDetails: jobDetails,
     });
 
