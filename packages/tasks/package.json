@@ -6,7 +6,8 @@
   },
   "dependencies": {
     "@trigger.dev/sdk": "^3.3.17",
-    "@hir3d/db": "workspace:*"
+    "@hir3d/db": "workspace:*",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@trigger.dev/build": "^3.3.17"
