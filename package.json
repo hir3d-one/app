@@ -18,5 +18,7 @@
   "engines": {
     "node": ">=18"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@trigger.dev/react": "^3.3.12"
+  }
 }
