@@ -1,3 +1,5 @@
 packages:
   - "apps/*"
-  - "packages/*"
+  - "packages/tasks"
+  - "packages/database/auth"
+  - "packages/database/app"

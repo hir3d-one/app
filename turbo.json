@@ -20,7 +20,11 @@
       "cache": false,
       "persistent": true
     },
-    "@hir3d/db#dev": {
+    "@hir3d/db-auth#dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "@hir3d/db-app#dev": {
       "cache": false,
       "persistent": true
     },
@@ -28,7 +32,11 @@
       "cache": false,
       "persistent": true
     },
-    "@hir3d/db#db:push": {
+    "@hir3d/db-auth#db:push": {
+      "cache": false,
+      "interactive": true
+    },
+    "@hir3d/db-app#db:push": {
       "cache": false,
       "interactive": true
     },

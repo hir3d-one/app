@@ -21,10 +21,10 @@ import { Stripe } from "stripe";
 import { apiKey } from "better-auth/plugins";
 
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { PrismaClient } from "@hir3d/db";
+import { PrismaClient as PrismaClientAuth } from "@hir3d/db-auth";
 
-const prisma = new PrismaClient();
- 
+const prisma = new PrismaClientAuth();
+		
 import {
 	PlusPlan,
 	ProfessionalPlan,
