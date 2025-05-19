@@ -1,5 +1,5 @@
 {
-  "name": "@hir3d/db",
+  "name": "@hir3d/db-app",
   "version": "0.0.0",
   "devDependencies": {
     "prisma": "^6.8.2"
@@ -10,7 +10,7 @@
   "scripts": {
     "db:generate": "prisma generate",
     "db:push": "prisma generate && prisma migrate dev",
-    "dev": "prisma studio"
+    "dev": "prisma studio -p 5556"
   },
   "exports": {
     ".": "./src/index.ts"
