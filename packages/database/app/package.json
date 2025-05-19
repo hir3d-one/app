@@ -9,7 +9,7 @@
   },
   "scripts": {
     "db:generate": "prisma generate",
-    "db:push": "prisma generate && prisma migrate dev",
+    "db:migrate": "prisma generate && prisma migrate dev",
     "dev": "prisma studio -p 5556"
   },
   "exports": {

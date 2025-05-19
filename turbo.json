@@ -32,11 +32,11 @@
       "cache": false,
       "persistent": true
     },
-    "@hir3d/db-auth#db:push": {
+    "@hir3d/db-auth#db:migrate": {
       "cache": false,
       "interactive": true
     },
-    "@hir3d/db-app#db:push": {
+    "@hir3d/db-app#db:migrate": {
       "cache": false,
       "interactive": true
     },
