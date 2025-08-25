@@ -206,11 +206,11 @@ export default function CreateJobPage() {
       
       if (isRunCompleted) {
         activeNumericalStep = initialStepsConfig.length;
-        const draftId = run.output?.draftId; 
-        if (draftId) {
-          setTimeout(() => router.push(`/dashboard/jobs/draft/${draftId}`), 1000);
+        const jobSearchId = run.output?.jobSearchId; 
+        if (jobSearchId) {
+          setTimeout(() => router.push(`/dashboard/jobs/draft/${jobSearchId}`), 1000);
         } else {
-          toast.error("Job completed, but draft ID missing for redirection.");
+          toast.error("Job completed, but job search ID missing for redirection.");
         }
       } else if (isRunFailed) {
         const stepIndex = initialStepsConfig.findIndex((s: DemoStepConfigItem) => s.name === jobStatusMeta?.currentStep);

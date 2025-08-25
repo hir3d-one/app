@@ -1,7 +1,9 @@
-import { defineConfig } from "@trigger.dev/sdk/v3";
+import { defineConfig } from "@trigger.dev/sdk";
+import { prismaExtension } from "@trigger.dev/build/extensions/prisma";
+
 
 export default defineConfig({
-  project: "proj_okenfqdywstdbxcybcis",
+  project: "proj_nejrxxiigtsjjcbqfhqs",
   runtime: "node",
   logLevel: "log",
   // The max compute seconds a task is allowed to run. If the task run exceeds this duration, it will be stopped.
@@ -19,4 +21,13 @@ export default defineConfig({
     },
   },
   dirs: ["./src/trigger"],
+  build: {
+    extensions: [
+      prismaExtension({
+        schema: "../../packages/database/app/prisma/schema.prisma",
+        migrate: true,
+        directUrlEnvVarName: "DATABASE_URL_APP"
+      }),
+    ],
+  },
 });
