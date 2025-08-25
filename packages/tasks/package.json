@@ -5,13 +5,12 @@
     "dev": "pnpm dlx trigger.dev@latest dev"
   },
   "dependencies": {
-    "@trigger.dev/sdk": "^3.3.17",
-    "@hir3d/db-auth": "workspace:*",
+    "@trigger.dev/sdk": "4.0.1",
     "@hir3d/db-app": "workspace:*",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@trigger.dev/build": "^3.3.17"
+    "@trigger.dev/build": "4.0.1"
   },
   "exports": {
     ".": "./src/trigger/index.ts",

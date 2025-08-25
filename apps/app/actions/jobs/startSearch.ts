@@ -1,30 +1,31 @@
 "use server";
 
 import { jobSearchTask } from "@hir3d/tasks";
-// import { auth } from "@hir3d/auth"; // Assuming auth might be needed later
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 interface StartSearchInput {
-  jobDraftId: string;
-  jobTitle?: string;
-  // In a real scenario, you might pass the full criteria or fetch it here based on jobDraftId
+  jobSearchId: string;
 }
 
 export async function startJobSearch(input: StartSearchInput) {
-  // const session = await auth.api.getSession(); // Example: Get session
-  // if (!session?.user?.id) {
-  //   return { error: "User not authenticated. Please sign in.", runId: null, accessToken: null };
-  // }
+  // Get the authenticated session
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
+  
+  if (!session?.user?.id) {
+    return { error: "User not authenticated. Please sign in.", runId: null, accessToken: null };
+  }
 
-  if (!input.jobDraftId) {
-    return { error: "Job Draft ID is required.", runId: null, accessToken: null };
+  if (!input.jobSearchId) {
+    return { error: "Job Search ID is required.", runId: null, accessToken: null };
   }
 
   try {
     const runHandle = await jobSearchTask.trigger({
-      jobDraftId: input.jobDraftId,
-      userId: "user-placeholder-123", // Replace with actual userId from session
-      jobTitle: input.jobTitle || `Job Search for ${input.jobDraftId}`,
-      searchCriteria: {}, // Empty object for now, can be expanded with real criteria later
+      jobSearchId: input.jobSearchId,
+      userId: session.user.id
     });
 
     if (!runHandle?.id) {

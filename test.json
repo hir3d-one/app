@@ -1,0 +1,26 @@
+{
+  "content": {
+    "summary": "This is an admission letter from Oxford University to Daniel Ensminger, offering admission to the Bachelor of Software Engineering program. The letter provides details about the program, requirements, and important deadlines. It also includes information about tuition fees, immigration requirements, and academic integrity.",
+    "entities": [
+      { "name": "McGill University", "type": "Organization" },
+      { "name": "Daniel Ensminger", "type": "Person" },
+      { "name": "Bachelor of Software Engineering", "type": "Program" },
+      { "name": "Ali Martin-Mayer", "type": "Person" },
+      { "name": "International Baccalaureate", "type": "Organization" }
+    ],
+    "keyPoints": [
+      "Daniel Ensminger has been admitted to McGill University.",
+      "The program offered is Bachelor of Software Engineering with a concentration in Co-op in Software Engineering.",
+      "The start term is Fall 2024.",
+      "The letter outlines requirements for maintaining the offer, including maintaining academic achievement and receiving the International Baccalaureate Diploma.",
+      "The deadline to accept the offer is May 3, 2024.",
+      "Information on tuition fees, immigration requirements, and academic integrity is provided."
+    ]
+  },
+  "metadata": {
+    "author": "Ali Martin-Mayer",
+    "language": "English",
+    "dateCreated": "March 18, 2024"
+  },
+  "documentType": "Admission Letter"
+}
