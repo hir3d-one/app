@@ -3,3 +3,4 @@ packages:
   - "packages/tasks"
   - "packages/database/auth"
   - "packages/database/app"
+  - "packages/ai"
