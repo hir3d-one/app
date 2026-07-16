@@ -19,7 +19,7 @@ export function Wrapper(props: { children: React.ReactNode }) {
 				<Link href="/">
 					<div className="flex gap-2 cursor-pointer">
 						<Logo />
-						<p className="dark:text-white text-black">BETTER-AUTH.</p>
+						<p className="dark:text-white text-black">HIR3D</p>
 					</div>
 				</Link>
 				<div className="z-50 flex items-center">

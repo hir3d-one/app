@@ -16,7 +16,7 @@ const HoverCardContent = ({
 	sideOffset = 4,
 	...props
 }: React.ComponentPropsWithoutRef<typeof HoverCardPrimitive.Content> & {
-	ref: React.RefObject<React.ElementRef<typeof HoverCardPrimitive.Content>>;
+	ref?: React.RefObject<React.ElementRef<typeof HoverCardPrimitive.Content>>;
 }) => (
 	<HoverCardPrimitive.Content
 		ref={ref}

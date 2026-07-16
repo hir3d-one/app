@@ -8,11 +8,11 @@ import { createMetadata } from "@/lib/metadata";
 
 export const metadata = createMetadata({
 	title: {
-		template: "%s | Better Auth",
-		default: "Better Auth",
+		template: "%s | Hir3d",
+		default: "Hir3d Recruiter Portal",
 	},
-	description: "The most comprehensive authentication library for typescript",
-	metadataBase: new URL("https://demo.better-auth.com"),
+	description: "AI-assisted recruiting, candidate discovery, and hiring workflows.",
+	metadataBase: new URL("https://hir3d-app.vercel.app"),
 });
 
 export default function RootLayout({
