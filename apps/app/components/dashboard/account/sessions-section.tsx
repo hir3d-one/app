@@ -53,8 +53,7 @@ export function SessionsSection({
     const res = await authClient.revokeSession(
       { token: session.token },
       {
-        fetchOptions: {
-          onSuccess: () => {
+        onSuccess: () => {
             toast.success("Session terminated successfully");
             router.refresh(); // Refresh data to update the list
           },
@@ -65,7 +64,6 @@ export function SessionsSection({
           onSettled: () => {
              setIsTerminating(undefined);
           }
-        }
       }
     );
   };
@@ -138,4 +136,4 @@ export function SessionsSection({
       </CardContent>
     </Card>
   );
-} 
+}

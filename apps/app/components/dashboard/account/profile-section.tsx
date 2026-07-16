@@ -40,7 +40,7 @@ async function convertImageToBase64(file: File): Promise<string> {
 }
 
 export function ProfileSection() {
-  const { data: session, isLoading } = useSession();
+  const { data: session, isPending: isLoading } = useSession();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [image, setImage] = useState<File | null>(null);
@@ -89,8 +89,7 @@ export function ProfileSection() {
         name: name !== session.user.name ? name : undefined,
       },
       {
-        fetchOptions: {
-          onSuccess: () => {
+        onSuccess: () => {
             toast.success("User updated successfully");
             router.refresh();
             setImage(null);
@@ -104,7 +103,6 @@ export function ProfileSection() {
           onSettled: () => {
             setIsUpdating(false);
           }
-        },
       },
     );
   };

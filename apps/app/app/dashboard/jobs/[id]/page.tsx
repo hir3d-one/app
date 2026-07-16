@@ -236,7 +236,6 @@ export default function JobMatchesPage() {
     currentRunId ?? undefined,
     {
       accessToken: accessToken ?? undefined,
-      baseURL: 'https://workers.hir3d.one', 
       enabled: !!(currentRunId && accessToken),
     }
   );
@@ -250,9 +249,9 @@ export default function JobMatchesPage() {
   }, [jobId]);
 
   const isJobProcessing = useMemo(() => {
-    if (!currentRunId) return false; 
-    if (currentRunId && !run && !runSubscriptionError) return true; 
-    if (!run) return false; 
+    if (!currentRunId) return false;
+    if (currentRunId && !run && !runSubscriptionError) return true;
+    if (!run) return false;
     return !["COMPLETED", "FAILED", "CRASHED", "CANCELED", "TIMED_OUT", "SYSTEM_FAILURE"].includes(run.status);
   }, [run, currentRunId, runSubscriptionError]);
 
@@ -276,7 +275,7 @@ export default function JobMatchesPage() {
     }
 
     if (run?.status === "COMPLETED" && run.output) {
-      const output = run.output as any; 
+      const output = run.output as any;
       setMatchedCandidates(output.matchedCandidates || []);
       if(jobDraftData?.title !== output.jobTitle) {
         setJobDraftData(prev => prev ? {...prev, title: output.jobTitle} : {id: jobId, title: output.jobTitle, locations: [], employmentType: 'Full-time', salaryMin:0, salaryMax:0, keySkills:[], totalYearsExperience:[0,0], industryExperience:[], languageRequirements:[], keywords:''});
@@ -291,7 +290,7 @@ export default function JobMatchesPage() {
       toast.error(`Job search ${run?.status.toLowerCase()}. ${run?.error?.message || 'Please try again.'}`);
     }
   }, [run, runSubscriptionError, jobId, jobDraftData?.title]);
-  
+
   const pageTitle = jobDraftData?.title ? `${jobDraftData.title} - Matches` : "Job Matches";
 
   // Initialize jobStats based on localDemoCandidates if no run has completed yet.
@@ -350,7 +349,7 @@ export default function JobMatchesPage() {
                   {runMetadata?.statusText || "Initializing job search, please wait..."}
                 </p>
               </div>
-              
+
               <div className="w-full max-w-2xl mt-3 bg-card border shadow-lg rounded-xl overflow-hidden">
                 <div className="bg-muted/50 border-b px-5 py-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -364,7 +363,7 @@ export default function JobMatchesPage() {
                     </div>
                   )}
                 </div>
-              
+
               <div className="p-3 pt-4 bg-black text-white">
                 <div className="space-y-3">
                   {uiSteps.map((step, index) => {
@@ -372,26 +371,26 @@ export default function JobMatchesPage() {
                     const isActive = step.status === 'in-progress';
                     const isFailed = step.status === 'failed';
                     const isPending = step.status === 'pending';
-                    
+
                     // Determine step number display
                     let stepNumberDisplay = `${index + 1}/${uiSteps.length}`;
                     if (index === uiSteps.length - 1) {
                       stepNumberDisplay = `${index + 1}`;
                     }
-                    
+
                     return (
                       <div key={step.name} className="relative pl-8">
                         {/* Timeline connector line */}
                         {index < uiSteps.length - 1 && (
                           <div className="absolute left-2.5 top-5 w-0.5 h-[calc(100%+1px)] bg-gray-700" />
                         )}
-                        
+
                         {/* Status indicator */}
                         <div className="absolute left-0 top-0">
                           <div className={cn(
                             "flex items-center justify-center w-5 h-5 rounded-full",
-                            isCompleted ? "bg-green-500 text-white" : 
-                            isActive ? "bg-white text-black" : 
+                            isCompleted ? "bg-green-500 text-white" :
+                            isActive ? "bg-white text-black" :
                             isFailed ? "bg-red-500 text-white" :
                             "bg-gray-700 text-white"
                           )}>
@@ -406,33 +405,33 @@ export default function JobMatchesPage() {
                             )}
                           </div>
                         </div>
-                        
+
                         <div className="space-y-0">
                           {/* Status text */}
                           <span className={cn(
                             "text-xs font-medium",
-                            isCompleted ? "text-green-500" : 
-                            isActive ? "text-white" : 
+                            isCompleted ? "text-green-500" :
+                            isActive ? "text-white" :
                             isFailed ? "text-red-500" :
                             "text-gray-400"
                           )}>
-                            {isCompleted ? "Completed" : 
-                             isActive ? "Processing..." : 
-                             isFailed ? "Failed" : 
+                            {isCompleted ? "Completed" :
+                             isActive ? "Processing..." :
+                             isFailed ? "Failed" :
                              "Pending"}
                           </span>
-                          
+
                           {/* Step title */}
                           <h3 className={cn(
                             "text-sm font-medium mb-0",
-                            isCompleted ? "text-green-500" : 
-                            isActive ? "text-white" : 
+                            isCompleted ? "text-green-500" :
+                            isActive ? "text-white" :
                             isFailed ? "text-red-500" :
                             "text-white"
                           )}>
                             {step.name}
                           </h3>
-                          
+
                           {/* Step description */}
                           <p className="text-gray-400 text-xs mt-0.5">
                             {isCompleted ? "This step completed successfully." :
@@ -446,14 +445,14 @@ export default function JobMatchesPage() {
                   })}
                 </div>
               </div>
-              
+
               {/* Status footer */}
               <div className="bg-[#111] px-5 py-2 border-t border-gray-800">
                 <div className="flex items-start gap-2">
                   <InfoIcon className="h-4 w-4 text-gray-400 mt-0.5" />
                   <div>
                     <p className="text-xs text-gray-400">
-                      {isJobProcessing ? 
+                      {isJobProcessing ?
                         "Processing your job search request. This may take a moment..." :
                         run?.status === "COMPLETED" ?
                         "Job search completed! Results are ready." :
@@ -502,7 +501,7 @@ export default function JobMatchesPage() {
                   </h1>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1.5 items-center">
                     <span className="inline-flex items-center"><Users className="h-4 w-4 mr-1.5 text-gray-400" />{jobStats?.totalMatches ?? 0} Total Matches</span>
-                    {typeof jobStats?.newMatches === 'number' && jobStats.newMatches > 0 && 
+                    {typeof jobStats?.newMatches === 'number' && jobStats.newMatches > 0 &&
                       <span className="inline-flex items-center"><Zap className="h-4 w-4 mr-1.5 text-green-500" />{jobStats.newMatches} New</span>}
                     <span className="inline-flex items-center"><Star className="h-4 w-4 mr-1.5 text-amber-400" />{jobStats?.shortlistedCount ?? 0} Shortlisted</span>
                   </div>
@@ -676,4 +675,4 @@ export default function JobMatchesPage() {
       </div>
     </div>
   );
-} 
+}
