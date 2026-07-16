@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn, client } from "@/lib/auth-client";
+import { authClient, signIn } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import {
 	Card,

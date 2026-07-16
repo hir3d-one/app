@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../generated/app-client";
 
 const prisma = new PrismaClient();
 
@@ -211,7 +211,7 @@ async function main() {
   // Clear existing data
   await prisma.jobCandidateMatch.deleteMany();
   await prisma.candidate.deleteMany();
-  
+
   // Create candidates
   for (const candidateData of demoCandidates) {
     await prisma.candidate.create({
@@ -245,4 +245,4 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
-  }); 
+  });

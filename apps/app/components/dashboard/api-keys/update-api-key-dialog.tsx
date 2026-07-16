@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
-import type { ApiKey } from "better-auth";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,7 +26,28 @@ import { format } from 'date-fns';
 import { ChevronDown } from "lucide-react";
 
 // Helper types and functions (can be shared with create dialog)
-type ApiKeyData = Omit<ApiKey, 'key'>; // We don't get the key value when fetching
+type ApiKeyData = {
+  id: string;
+  name: string | null;
+  prefix: string | null;
+  start: string | null;
+  userId?: string;
+  enabled?: boolean;
+  createdAt: string;
+  updatedAt?: string;
+  expiresAt: string | null;
+  metadata?: Record<string, unknown> | null;
+  permissions?: Record<string, string[]> | null;
+  rateLimitEnabled?: boolean;
+  remaining?: number | null;
+  refillInterval?: number | null;
+  refillAmount?: number | null;
+  lastRefillAt?: string | null;
+  rateLimitTimeWindow?: number | null;
+  rateLimitMax?: number | null;
+  requestCount?: number;
+  lastRequest?: string | null;
+};
 
 const secondsToDays = (seconds: number | null | undefined): number | null => {
   if (seconds === null || seconds === undefined) return null;
@@ -91,13 +111,13 @@ export function UpdateApiKeyDialog({ apiKeyId, initialData, children }: UpdateAp
     queryFn: async () => {
       // Fetching key details requires the `getApiKey` method (not list)
       // Assuming better-auth has a getApiKey method
-      // const { data, error } = await authClient.apiKey.get({ keyId: apiKeyId }); 
+      // const { data, error } = await authClient.apiKey.get({ keyId: apiKeyId });
       // MOCKING getApiKey as it's not in the provided client context definition
       console.warn("UpdateApiKeyDialog: Mocking fetch for key ID:", apiKeyId);
       await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
-      const mockKey: ApiKeyData = initialData ?? { 
-          id: apiKeyId, 
-          name: 'Mock Fetched Key', 
+      const mockKey: ApiKeyData = initialData ?? {
+          id: apiKeyId,
+          name: 'Mock Fetched Key',
           prefix: 'mock',
           start: 'abc',
           userId: 'mockUser',
@@ -142,16 +162,16 @@ export function UpdateApiKeyDialog({ apiKeyId, initialData, children }: UpdateAp
 
   const updateMutation = useMutation({
     // Only pass editable fields
-    mutationFn: (params: { keyId: string; name?: string }) => 
+    mutationFn: (params: { keyId: string; name?: string }) =>
         authClient.apiKey.update(params),
     onSuccess: (result) => {
        if (result.error) {
          toast.error(result.error.message || "Failed to update API key.");
       } else {
           toast.success("API Key updated successfully!");
-          queryClient.invalidateQueries({ queryKey: ['apiKeys'] }); 
-          queryClient.invalidateQueries({ queryKey: ['apiKey', apiKeyId] }); 
-          setIsOpen(false); 
+          queryClient.invalidateQueries({ queryKey: ['apiKeys'] });
+          queryClient.invalidateQueries({ queryKey: ['apiKey', apiKeyId] });
+          setIsOpen(false);
       }
     },
     onError: (error: any) => {
@@ -161,7 +181,7 @@ export function UpdateApiKeyDialog({ apiKeyId, initialData, children }: UpdateAp
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!apiKeyData) return; 
+    if (!apiKeyData) return;
 
     // Only include editable fields in update payload
     const updateData: { keyId: string; name?: string } = {
@@ -197,7 +217,7 @@ export function UpdateApiKeyDialog({ apiKeyId, initialData, children }: UpdateAp
              <br/> <span className="text-xs">Only the name can be updated via this interface. Other changes require server-side configuration.</span>
           </DialogDescription>
         </DialogHeader>
-        
+
         {isLoadingKey ? (
             <UpdateFormSkeleton />
         ) : !apiKeyData ? (
@@ -216,7 +236,7 @@ export function UpdateApiKeyDialog({ apiKeyId, initialData, children }: UpdateAp
                   onChange={(e) => setName(e.target.value)}
                   className="col-span-3"
                   placeholder="e.g., My Production Key"
-                  disabled={updateMutation.isLoading}
+                  disabled={updateMutation.isPending}
                 />
               </div>
 
@@ -242,7 +262,7 @@ export function UpdateApiKeyDialog({ apiKeyId, initialData, children }: UpdateAp
 
                {/* Display Advanced Options (Read-Only) */}
                 <details className="pt-4 group">
-                    <summary className="text-sm font-medium cursor-pointer list-none flex items-center group-open:mb-2">Advanced Options (Read-Only) 
+                    <summary className="text-sm font-medium cursor-pointer list-none flex items-center group-open:mb-2">Advanced Options (Read-Only)
                         <ChevronDown className="ml-1 h-4 w-4 transition-transform duration-200 group-open:rotate-180" />
                     </summary>
                      <div className="grid gap-3 py-4 pl-4 border-l-2 border-muted text-sm">
@@ -265,18 +285,18 @@ export function UpdateApiKeyDialog({ apiKeyId, initialData, children }: UpdateAp
                      </div>
                 </details>
             </div> // End display section
-        )} 
-        
+        )}
+
         <DialogFooter>
            <DialogClose asChild>
-             <Button variant="outline" disabled={updateMutation.isLoading || isLoadingKey}>Cancel</Button>
+             <Button variant="outline" disabled={updateMutation.isPending || isLoadingKey}>Cancel</Button>
            </DialogClose>
-          <Button 
+          <Button
             type="button" // Changed from submit as form isn't wrapping everything
             onClick={handleSubmit} // Trigger submit logic manually
-            disabled={updateMutation.isLoading || isLoadingKey || !apiKeyData || name === apiKeyData?.name} // Also disable if name hasn't changed
+            disabled={updateMutation.isPending || isLoadingKey || !apiKeyData || name === apiKeyData?.name} // Also disable if name hasn't changed
            >
-            {updateMutation.isLoading ? (
+            {updateMutation.isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <Save className="mr-2 h-4 w-4" />
@@ -287,4 +307,4 @@ export function UpdateApiKeyDialog({ apiKeyId, initialData, children }: UpdateAp
       </DialogContent>
     </Dialog>
   );
-} 
+}

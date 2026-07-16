@@ -27,8 +27,8 @@ type ApiKeyListItem = {
     enabled: boolean;
     prefix: string | null;
     start: string;
-    createdAt: string; 
-    expiresAt: string | null; 
+    createdAt: string;
+    expiresAt: string | null;
     metadata?: Record<string, any> | null;
 };
 type DeleteError = { message?: string };
@@ -59,8 +59,8 @@ function ApiKeyCardSkeleton() {
         <Skeleton className="h-3 w-1/5 bg-muted-foreground/20" />
       </div>
       <div className="flex space-x-2">
-        <Skeleton className="h-8 w-16 bg-muted-foreground/20" /> 
-        <Skeleton className="h-8 w-8 bg-muted-foreground/20" /> 
+        <Skeleton className="h-8 w-16 bg-muted-foreground/20" />
+        <Skeleton className="h-8 w-8 bg-muted-foreground/20" />
       </div>
     </div>
   );
@@ -81,7 +81,7 @@ export default function ApiKeysPage() {
   const queryClient = useQueryClient();
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null);
   // Session is mainly for user context now, not direct plan info
-  const { data: session, isPending: isLoadingSession } = useSession(); 
+  const { data: session, isPending: isLoadingSession } = useSession();
 
   // Query 1: Fetch API Keys
   const { data: apiKeys = [], isLoading: isLoadingApiKeys } = useQuery<ApiKeyListItem[], Error>({
@@ -94,14 +94,14 @@ export default function ApiKeysPage() {
         toast.error(errorMessage);
         throw new Error(errorMessage);
       }
-      const keys = (data as any[] || []).map((key: any): ApiKeyListItem => ({
+      const keys = (data?.apiKeys ?? []).map((key): ApiKeyListItem => ({
           id: key.id,
           name: key.name ?? null,
           enabled: key.enabled,
           prefix: key.prefix ?? null,
-          start: key.start,
-          createdAt: key.createdAt,
-          expiresAt: key.expiresAt ?? null,
+          start: key.start ?? "",
+          createdAt: key.createdAt.toISOString(),
+          expiresAt: key.expiresAt?.toISOString() ?? null,
           metadata: key.metadata ?? null,
       }));
       return keys;
@@ -114,7 +114,7 @@ export default function ApiKeysPage() {
       queryKey: ["subscriptions", session?.user?.id], // Include user ID in key if needed
       queryFn: async (): Promise<SubscriptionListItem[]> => {
           // Use default referenceId (user) or specify if needed
-          const { data, error } = await authClient.subscription.list(); 
+          const { data, error } = await authClient.subscription.list();
           if (error) {
               console.error("Error fetching subscriptions:", error);
               // Don't necessarily throw an error, maybe just show message
@@ -160,14 +160,14 @@ export default function ApiKeysPage() {
        toast.error(error?.message || "Failed to delete API key.");
     }
   });
-  
+
   const handleKeyCreated = (key: string) => {
     setNewlyCreatedKey(key);
     queryClient.invalidateQueries({ queryKey: ['apiKeys'] });
   };
-  
+
   // Combined loading state includes subscription loading now
-  const isLoading = isLoadingApiKeys || isLoadingSession || isLoadingSubscriptions; 
+  const isLoading = isLoadingApiKeys || isLoadingSession || isLoadingSubscriptions;
 
   const maxKeysForUser = userApiKeyLimits?.maxKeys ?? Infinity;
   const canCreateMoreKeys = apiKeys.length < maxKeysForUser;
@@ -178,15 +178,15 @@ export default function ApiKeysPage() {
       ? "Loading API keys..."
       : !activeSubscription || !userPlan
       ? "Cannot determine your current plan limits."
-      : !canCreateMoreKeys 
+      : !canCreateMoreKeys
       ? `You have reached the maximum of ${formatLimitValue(maxKeysForUser)} API keys for the ${userPlan.name} plan.`
       : "Create a new API key"; // Default tooltip when enabled
 
   return (
-    <TooltipProvider> 
+    <TooltipProvider>
       <>
         <SiteHeader title="API Keys" />
-        <div className="flex flex-col w-full p-6 space-y-6"> 
+        <div className="flex flex-col w-full p-6 space-y-6">
           <div className="flex justify-between items-center gap-4 flex-wrap">
              <div className="flex items-center gap-2">
                <h2 className="text-2xl font-semibold tracking-tight">Manage API Keys</h2>
@@ -250,12 +250,12 @@ export default function ApiKeysPage() {
 
              <CreateApiKeyDialog onKeyCreated={handleKeyCreated}>
                 <Button disabled={createButtonDisabled}>
-                   <KeyRound className="mr-2 h-4 w-4" /> Create New Key 
-                   {!isLoading && activeSubscription && userPlan && isFinite(maxKeysForUser) && ` (${apiKeys.length}/${formatLimitValue(maxKeysForUser)})`} 
+                   <KeyRound className="mr-2 h-4 w-4" /> Create New Key
+                   {!isLoading && activeSubscription && userPlan && isFinite(maxKeysForUser) && ` (${apiKeys.length}/${formatLimitValue(maxKeysForUser)})`}
                 </Button>
              </CreateApiKeyDialog>
           </div>
-          
+
            {newlyCreatedKey && (
               <Card className="border-sky-300 bg-sky-50 dark:border-sky-700 dark:bg-sky-900/30 p-4 relative group">
                 <CardHeader className="p-0 pb-2 flex flex-row items-start">
@@ -273,7 +273,7 @@ export default function ApiKeysPage() {
                    <pre className="text-sm p-2 bg-background dark:bg-muted/50 border border-sky-200 dark:border-sky-800 rounded-md flex-grow overflow-x-auto shadow-inner">
                      <code>{newlyCreatedKey}</code>
                    </pre>
-                   <CopyButton textToCopy={newlyCreatedKey || ''} /> 
+                   <CopyButton textToCopy={newlyCreatedKey || ''} />
                    <Button variant="ghost" size="icon" onClick={() => setNewlyCreatedKey(null)} className="h-8 w-8 text-muted-foreground hover:bg-muted/50" aria-label="Dismiss new key banner">
                      <X className="h-4 w-4" />
                    </Button>
@@ -313,14 +313,14 @@ export default function ApiKeysPage() {
                           </div>
                          <p className="text-sm text-muted-foreground font-mono flex items-center gap-1.5 truncate" title={key.id}>
                            <span className="text-xs font-sans text-muted-foreground/80 shrink-0">ID:</span> <span className="truncate">{key.id}</span>
-                         </p> 
+                         </p>
                          <p className="text-sm text-muted-foreground font-mono flex items-center gap-1.5">
                             <span className="text-xs font-sans text-muted-foreground/80 shrink-0">Key:</span>
                            {key.prefix ? `${key.prefix}_` : ''}{key.start}...
-                         </p> 
+                         </p>
                          {key.metadata?.comment && (
                              <p className="text-xs text-muted-foreground italic flex items-center gap-1.5 pt-1 truncate" title={typeof key.metadata.comment === 'string' ? key.metadata.comment : ''}>
-                                <MessageSquare className="h-3 w-3 shrink-0"/> 
+                                <MessageSquare className="h-3 w-3 shrink-0"/>
                                 <span className="truncate">{typeof key.metadata.comment === 'string' ? key.metadata.comment : JSON.stringify(key.metadata.comment)}</span>
                             </p>
                          )}
@@ -339,22 +339,22 @@ export default function ApiKeysPage() {
                        </div>
                        <div className="flex space-x-1 items-center shrink-0 self-center sm:self-auto">
                           <UpdateApiKeyDialog apiKeyId={key.id} initialData={key}>
-                            <Button 
-                               variant="ghost" 
-                               size="icon" 
+                            <Button
+                               variant="ghost"
+                               size="icon"
                                aria-label="Edit Key"
                                className="h-8 w-8 text-muted-foreground"
-                            > 
+                            >
                                <Edit className="h-4 w-4" />
                             </Button>
                           </UpdateApiKeyDialog>
                           <AlertDialog>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <AlertDialogTrigger asChild> 
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
                                     disabled={deleteMutation.isPending && deleteMutation.variables === key.id}
                                     aria-label="Delete Key"
                                     className="h-8 w-8 text-red-600 hover:text-red-700"
@@ -380,12 +380,12 @@ export default function ApiKeysPage() {
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction 
+                                <AlertDialogAction
                                   onClick={() => deleteMutation.mutate(key.id)}
                                   className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
-                                  disabled={deleteMutation.isPending} 
+                                  disabled={deleteMutation.isPending}
                                 >
-                                  {deleteMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} 
+                                  {deleteMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                                   Yes, delete key
                                 </AlertDialogAction>
                               </AlertDialogFooter>
@@ -402,4 +402,4 @@ export default function ApiKeysPage() {
       </>
     </TooltipProvider>
   );
-} 
+}
