@@ -6,14 +6,10 @@ import { OTPInput, OTPInputContext } from "input-otp";
 
 import { cn } from "@/lib/utils";
 
-const InputOTP = ({
-	ref,
-	className,
-	containerClassName,
-	...props
-}: React.ComponentPropsWithoutRef<typeof OTPInput> & {
-	ref: React.RefObject<React.ElementRef<typeof OTPInput>>;
-}) => (
+const InputOTP = React.forwardRef<
+	React.ElementRef<typeof OTPInput>,
+	React.ComponentPropsWithoutRef<typeof OTPInput>
+>(({ className, containerClassName, ...props }, ref) => (
 	<OTPInput
 		ref={ref}
 		containerClassName={cn(
@@ -23,21 +19,21 @@ const InputOTP = ({
 		className={cn("disabled:cursor-not-allowed", className)}
 		{...props}
 	/>
-);
+));
 InputOTP.displayName = "InputOTP";
 
-const InputOTPGroup = ({
-	ref,
-	className,
-	...props
-}: React.ComponentPropsWithoutRef<"div"> & {
-	ref: React.RefObject<React.ElementRef<"div">>;
-}) => (
+const InputOTPGroup = React.forwardRef<
+	React.ElementRef<"div">,
+	React.ComponentPropsWithoutRef<"div">
+>(({ className, ...props }, ref) => (
 	<div ref={ref} className={cn("flex items-center", className)} {...props} />
-);
+));
 InputOTPGroup.displayName = "InputOTPGroup";
 
-const InputOTPSlot = ({ ref, index, className, ...props }) => {
+const InputOTPSlot = React.forwardRef<
+	React.ElementRef<"div">,
+	React.ComponentPropsWithoutRef<"div"> & { index: number }
+>(({ index, className, ...props }, ref) => {
 	const inputOTPContext = React.useContext(OTPInputContext);
 	const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index];
 
@@ -59,19 +55,17 @@ const InputOTPSlot = ({ ref, index, className, ...props }) => {
 			)}
 		</div>
 	);
-};
+});
 InputOTPSlot.displayName = "InputOTPSlot";
 
-const InputOTPSeparator = ({
-	ref,
-	...props
-}: React.ComponentPropsWithoutRef<"div"> & {
-	ref: React.RefObject<React.ElementRef<"div">>;
-}) => (
+const InputOTPSeparator = React.forwardRef<
+	React.ElementRef<"div">,
+	React.ComponentPropsWithoutRef<"div">
+>(({ ...props }, ref) => (
 	<div ref={ref} role="separator" {...props}>
 		<DashIcon />
 	</div>
-);
+));
 InputOTPSeparator.displayName = "InputOTPSeparator";
 
 export { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator };

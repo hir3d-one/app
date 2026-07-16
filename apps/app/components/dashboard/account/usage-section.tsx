@@ -2,7 +2,6 @@
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { authClient } from "@/lib/auth-client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -16,30 +15,13 @@ type UsageData = {
 };
 
 export function UsageSection() {
-  const { data: usage, isLoading: isLoadingUsage } = useQuery<UsageData>({ 
+  const { data: usage, isLoading: isLoadingUsage } = useQuery<UsageData>({
     queryKey: ["usageData"],
     queryFn: async () => {
-      // --- Hypothetical API call --- 
-      // Replace with your actual usage fetching logic
-      const res = await authClient.usage.getCurrent({
-        fetchOptions: {
-          throw: false,
-        },
-      });
-      // --- End Hypothetical API call ---
-
-      if ('error' in res && res.error) {
-        console.error("Error fetching usage:", res.error);
-        toast.error(res.error.message || "Failed to load usage details.");
-        // Return default/empty state on error
-        return { requestsMade: 0, requestsLimit: 1000, storageUsedGB: 0, storageLimitGB: 5 }; 
-      }
-      // Assuming res.data contains the UsageData object
-      // Adjust the return based on your actual API response structure
-      return res.data ?? { requestsMade: 0, requestsLimit: 1000, storageUsedGB: 0, storageLimitGB: 5 }; 
+      return { requestsMade: 0, requestsLimit: 1000, storageUsedGB: 0, storageLimitGB: 5 };
     },
     // Provide some default/initial data structure
-    initialData: { requestsMade: 0, requestsLimit: 1000, storageUsedGB: 0, storageLimitGB: 5 }, 
+    initialData: { requestsMade: 0, requestsLimit: 1000, storageUsedGB: 0, storageLimitGB: 5 },
     refetchOnWindowFocus: false,
   });
 
@@ -77,7 +59,7 @@ export function UsageSection() {
               </div>
               <Progress value={storagePercentage} aria-label={`${storagePercentage.toFixed(0)}% storage used`} />
             </div>
-            
+
              {/* Add more usage metrics as needed */}
           </div>
         ) : (
@@ -93,7 +75,7 @@ export function UsageSection() {
 // Skeleton component for loading state
 function UsageSkeleton() {
   return (
-    <div className="space-y-6 animate-pulse py-2"> 
+    <div className="space-y-6 animate-pulse py-2">
       {/* Placeholder for API Requests */}
       <div>
         <div className="flex justify-between items-center mb-2">
@@ -113,4 +95,4 @@ function UsageSkeleton() {
       </div>
     </div>
   );
-} 
+}

@@ -4,7 +4,6 @@ import React, { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useRealtimeRun } from "@trigger.dev/react-hooks";
 import type { jobCreationDemoTask as JobCreationDemoTaskType } from "@hir3d/tasks";
-import { demoTaskSteps as initialStepsConfig } from "@hir3d/tasks";
 import { startJobCreation } from "@/actions/jobs/create";
 import { toast } from "sonner";
 
@@ -37,6 +36,15 @@ import {
   AlertTriangleIcon,
   InfoIcon,
 } from "lucide-react";
+
+// Keep client-safe step metadata local so the browser bundle does not import
+// the Trigger.dev task implementation and its Node-only dependencies.
+const initialStepsConfig = [
+  { id: "step1", name: "Initiating Job Creation", duration: 2000 },
+  { id: "step2", name: "Processing Input Data", duration: 3000 },
+  { id: "step3", name: "Analyzing with AI", duration: 4000 },
+  { id: "step4", name: "Creating Job Search Record", duration: 2000 },
+] as const;
 
 type DemoStepConfigItem = (typeof initialStepsConfig)[number];
 
@@ -81,7 +89,7 @@ function getCalculatedStepStatus(
 
   if (isRunFailed) return "failed";
   if (isRunCompleted) return "completed";
-  
+
   if (!runStatus || ["QUEUED", "WAITING_FOR_DEPLOY"].includes(runStatus)) return "pending";
 
   if (currentRunStepName === stepName && ["EXECUTING", "REATTEMPTING", "DELAYED"].includes(runStatus)) {
@@ -91,7 +99,7 @@ function getCalculatedStepStatus(
   if (currentRunStepName && typeof currentRunStepIndex === 'number' && currentRunStepIndex > -1 && stepIndex < currentRunStepIndex) {
     return "completed";
   }
-  
+
   if (stepIndex === 0 && runStatus === "EXECUTING" && !currentRunStepName) {
     return "in-progress";
   }
@@ -139,7 +147,6 @@ export default function CreateJobPage() {
     currentRunId ?? undefined,
     {
       accessToken: accessToken ?? undefined,
-      baseURL: 'https://workers.hir3d.one',
       enabled: !!(currentRunId && accessToken),
     }
   );
@@ -165,7 +172,7 @@ export default function CreateJobPage() {
 
     const formData = new FormData();
     formData.append("jobInput", jobInput);
-    const result = await startJobCreation(formData); 
+    const result = await startJobCreation(formData);
     setFormSubmitting(false);
 
     if (result.error) {
@@ -197,16 +204,16 @@ export default function CreateJobPage() {
     if (run) {
       const isRunCompleted = run.status === "COMPLETED";
       const isRunFailed = ["FAILED", "CRASHED", "CANCELED", "TIMED_OUT", "SYSTEM_FAILURE"].includes(run.status);
-      const jobStatusMeta = run.metadata?.jobStatusUpdate as JobStatusMetadata | undefined; 
+      const jobStatusMeta = run.metadata?.jobStatusUpdate as JobStatusMetadata | undefined;
 
       setUiSteps(prevSteps => prevSteps.map(uiStep => ({
         ...uiStep,
         status: getCalculatedStepStatus(run.status, jobStatusMeta, uiStep.name, isRunCompleted, isRunFailed, initialStepsConfig),
       })));
-      
+
       if (isRunCompleted) {
         activeNumericalStep = initialStepsConfig.length;
-        const jobSearchId = run.output?.jobSearchId; 
+        const jobSearchId = run.output?.jobSearchId;
         if (jobSearchId) {
           setTimeout(() => router.push(`/dashboard/jobs/draft/${jobSearchId}`), 1000);
         } else {
@@ -214,30 +221,30 @@ export default function CreateJobPage() {
         }
       } else if (isRunFailed) {
         const stepIndex = initialStepsConfig.findIndex((s: DemoStepConfigItem) => s.name === jobStatusMeta?.currentStep);
-        activeNumericalStep = stepIndex !== -1 ? stepIndex + 1 : currentActiveNumericalStep; 
+        activeNumericalStep = stepIndex !== -1 ? stepIndex + 1 : currentActiveNumericalStep;
         toast.error(`Job status: ${run.status}. ${run.error?.message || 'Check Trigger.dev dashboard for details.'}`);
       } else if (jobStatusMeta?.currentStep) {
         const stepIndex = initialStepsConfig.findIndex((s: DemoStepConfigItem) => s.name === jobStatusMeta.currentStep);
         if (stepIndex !== -1) {
           activeNumericalStep = stepIndex + 1;
         } else if (run.status === "EXECUTING" && initialStepsConfig.length > 0 && activeNumericalStep === 0) {
-          activeNumericalStep = 1; 
+          activeNumericalStep = 1;
         }
       } else if (run.status === "EXECUTING" && initialStepsConfig.length > 0 && activeNumericalStep === 0) {
         activeNumericalStep = 1;
       }
     } else if (!currentRunId) {
-      activeNumericalStep = 0; 
+      activeNumericalStep = 0;
     }
-    
+
     if(activeNumericalStep !== currentActiveNumericalStep) {
       setCurrentActiveNumericalStep(activeNumericalStep);
     }
   }, [run, runSubscriptionError, router, currentRunId, currentActiveNumericalStep]);
 
-  const isJobProcessing = !!(formSubmitting || isLoadingRun || 
+  const isJobProcessing = !!(formSubmitting || isLoadingRun ||
                          (currentRunId && run && !["COMPLETED", "FAILED", "CRASHED", "CANCELED", "TIMED_OUT", "SYSTEM_FAILURE"].includes(run.status)));
-  
+
   const placeholders = [
     "What job should I kick off for you?",
     "e.g., Process Q4 sales data",
@@ -249,20 +256,20 @@ export default function CreateJobPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background overflow-hidden">
       <SiteHeader title="Create New Job" />
-      
+
       <div className="flex-1 flex flex-col overflow-hidden">
         <JobsCreateBackground>
           <div className={cn(
             "container mx-auto max-w-3xl w-full flex flex-col transition-all duration-500 ease-in-out",
-            currentRunId 
-              ? "justify-start items-center pt-0" 
+            currentRunId
+              ? "justify-start items-center pt-0"
               : "justify-center items-center h-[calc(100vh-64px)]"
-          )}>  
+          )}>
             <div className="flex flex-col items-center w-full max-w-2xl">
               {/* Enhanced Header Section */}
               <div className={cn(
                 "text-center transition-all duration-500 w-full",
-                currentRunId ? "mb-2 scale-90 transform origin-top space-y-1" : "mb-6 space-y-2" 
+                currentRunId ? "mb-2 scale-90 transform origin-top space-y-1" : "mb-6 space-y-2"
               )}>
                 <div className={cn(
                   "inline-flex items-center justify-center bg-primary/10 rounded-full transition-all duration-500",
@@ -286,10 +293,10 @@ export default function CreateJobPage() {
                   Describe your job in natural language, and we'll create a draft for you to refine.
                 </p>
               </div>
-              
+
               {/* Input Component - No card wrapper */}
               <div className="w-full mx-auto">
-                <PlaceholdersAndVanishInput 
+                <PlaceholdersAndVanishInput
                   placeholders={placeholders}
                   onSubmit={handleInputSubmit}
                   isLoading={isJobProcessing}
@@ -316,41 +323,41 @@ export default function CreateJobPage() {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="p-3 pt-4 bg-black text-white">
                     <div className="space-y-3">
                       {uiSteps.map((step, index) => {
                         const IconForStepName = step.icon;
                         const IconForStatus = stepStatusIcons[step.status];
                         const jobStatusMeta = run?.metadata?.jobStatusUpdate as JobStatusMetadata | undefined;
-                        const currentProgressText = jobStatusMeta?.currentStep === step.name && jobStatusMeta?.progress && step.status === 'in-progress' 
+                        const currentProgressText = jobStatusMeta?.currentStep === step.name && jobStatusMeta?.progress && step.status === 'in-progress'
                           ? jobStatusMeta.progress
                           : '';
-                        
+
                         const isCompleted = step.status === 'completed';
                         const isActive = step.status === 'in-progress';
                         const isFailed = step.status === 'failed';
                         const isPending = step.status === 'pending';
-                        
+
                         // Determine step number display
                         let stepNumberDisplay = `${index + 1}/${uiSteps.length}`;
                         if (index === uiSteps.length - 1) {
                           stepNumberDisplay = `${index + 1}`;
                         }
-                        
+
                         return (
                           <div key={step.id} className="relative pl-8">
                             {/* Timeline connector line */}
                             {index < uiSteps.length - 1 && (
                               <div className="absolute left-2.5 top-5 w-0.5 h-[calc(100%+1px)] bg-gray-700" />
                             )}
-                            
+
                             {/* Status indicator */}
                             <div className="absolute left-0 top-0">
                               <div className={cn(
                                 "flex items-center justify-center w-5 h-5 rounded-full",
-                                isCompleted ? "bg-green-500 text-white" : 
-                                isActive ? "bg-white text-black" : 
+                                isCompleted ? "bg-green-500 text-white" :
+                                isActive ? "bg-white text-black" :
                                 isFailed ? "bg-red-500 text-white" :
                                 "bg-gray-700 text-white"
                               )}>
@@ -365,33 +372,33 @@ export default function CreateJobPage() {
                                 )}
                               </div>
                             </div>
-                            
+
                             <div className="space-y-0">
                               {/* Status text */}
                               <span className={cn(
                                 "text-xs font-medium",
-                                isCompleted ? "text-green-500" : 
-                                isActive ? "text-white" : 
+                                isCompleted ? "text-green-500" :
+                                isActive ? "text-white" :
                                 isFailed ? "text-red-500" :
                                 "text-gray-400"
                               )}>
-                                {isCompleted ? "Completed" : 
-                                 isActive ? "Processing..." : 
-                                 isFailed ? "Failed" : 
+                                {isCompleted ? "Completed" :
+                                 isActive ? "Processing..." :
+                                 isFailed ? "Failed" :
                                  "Pending"}
                               </span>
-                              
+
                               {/* Step title */}
                               <h3 className={cn(
                                 "text-sm font-medium mb-0",
-                                isCompleted ? "text-green-500" : 
-                                isActive ? "text-white" : 
+                                isCompleted ? "text-green-500" :
+                                isActive ? "text-white" :
                                 isFailed ? "text-red-500" :
                                 "text-white"
                               )}>
                                 {step.name}
                               </h3>
-                              
+
                               {/* Step description */}
                               <p className="text-gray-400 text-xs mt-0.5">
                                 {isCompleted ? "This step completed successfully." :
@@ -405,14 +412,14 @@ export default function CreateJobPage() {
                       })}
                     </div>
                   </div>
-                  
+
                   {/* Status footer */}
                   <div className="bg-[#111] px-5 py-2 border-t border-gray-800">
                     <div className="flex items-start gap-2">
                       <InfoIcon className="h-4 w-4 text-gray-400 mt-0.5" />
                       <div>
                         <p className="text-xs text-gray-400">
-                          {isJobProcessing ? 
+                          {isJobProcessing ?
                             "Processing your job request. This may take a moment..." :
                             run?.status === "COMPLETED" ?
                             "Job completed! Redirecting to draft page..." :
@@ -432,4 +439,4 @@ export default function CreateJobPage() {
       </div>
     </div>
   );
-} 
+}

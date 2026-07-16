@@ -80,8 +80,7 @@ export function TwoFactorSection({
           await authClient.twoFactor.disable(
               { password },
               {
-                  fetchOptions: {
-                      onSuccess: () => {
+                  onSuccess: () => {
                           toast.success("Two-Factor Authentication disabled successfully.");
                           router.refresh();
                           setIsDialogOpen(false);
@@ -92,7 +91,6 @@ export function TwoFactorSection({
                           toast.error(message);
                           setIsLoading(false);
                       },
-                  }
               }
           );
       } else {
@@ -105,8 +103,7 @@ export function TwoFactorSection({
               await authClient.twoFactor.verifyTotp(
                   { code: otpCode },
                   {
-                      fetchOptions: {
-                          onSuccess: () => {
+                      onSuccess: () => {
                               toast.success("Two-Factor Authentication enabled successfully!");
                               router.refresh();
                               setIsDialogOpen(false);
@@ -117,15 +114,13 @@ export function TwoFactorSection({
                               toast.error(message);
                               setIsLoading(false);
                           },
-                      }
                   }
               );
           } else {
               await authClient.twoFactor.enable(
                   { password },
                   {
-                     fetchOptions: {
-                          onSuccess: (ctx) => {
+                      onSuccess: (ctx) => {
                               setTotpURI(ctx.data.totpURI);
                               setRecoveryCodes(ctx.data.recoveryCodes);
                               setPassword("");
@@ -136,7 +131,6 @@ export function TwoFactorSection({
                               toast.error(message);
                               setIsLoading(false);
                           },
-                     }
                   }
               );
           }
@@ -274,4 +268,4 @@ export function TwoFactorSection({
       </CardFooter>
     </Card>
   );
-} 
+}

@@ -16,7 +16,7 @@ import { X, ChevronLeft, ChevronRight, Loader2, Plus, PlusCircle, Clock, CheckCi
 import { cn } from '@/lib/utils';
 import { startJobSearch } from '@/actions/jobs/startSearch';
 import { getJobSearch, updateJobSearchCriteria } from '@/actions/jobs/manage';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Spotlight } from '@/components/ui/spotlight';
 
@@ -80,14 +80,15 @@ function JobsDraftBackground({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function JobDraftRefinePage({ params }: { params: { id: string } }) {
+export default function JobDraftRefinePage() {
   const router = useRouter();
+  const { id } = useParams<{ id: string }>();
   const [isLoading, setIsLoading] = useState(true);
   const [isActivating, setIsActivating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [jobSearch, setJobSearch] = useState<JobSearch | null>(null);
   const [criteria, setCriteria] = useState<any>(null);
-  
+
   // UI state for adding new items
   const [newSkill, setNewSkill] = useState('');
   const [newLocation, setNewLocation] = useState('');
@@ -99,13 +100,13 @@ export default function JobDraftRefinePage({ params }: { params: { id: string } 
     async function loadJobSearch() {
       setIsLoading(true);
       try {
-        const result = await getJobSearch(params.id);
+        const result = await getJobSearch(id);
         if (result.error) {
           toast.error(`Failed to load job search: ${result.error}`);
           router.push('/dashboard/jobs');
           return;
         }
-        
+
         setJobSearch(result.data);
         setCriteria(result.data?.criteria?.criteriaData || {});
       } catch (error: any) {
@@ -117,7 +118,7 @@ export default function JobDraftRefinePage({ params }: { params: { id: string } 
     }
 
     loadJobSearch();
-  }, [params.id, router]);
+  }, [id, router]);
 
   // Auto-save criteria changes with debouncing
   useEffect(() => {
@@ -126,7 +127,7 @@ export default function JobDraftRefinePage({ params }: { params: { id: string } 
     const timeoutId = setTimeout(async () => {
       setIsSaving(true);
       try {
-        await updateJobSearchCriteria(params.id, criteria);
+        await updateJobSearchCriteria(id, criteria);
       } catch (error) {
         console.error('Failed to auto-save criteria:', error);
       } finally {
@@ -135,7 +136,7 @@ export default function JobDraftRefinePage({ params }: { params: { id: string } 
     }, 800);
 
     return () => clearTimeout(timeoutId);
-  }, [criteria, params.id, isLoading]);
+  }, [criteria, id, isLoading]);
 
   if (isLoading) {
     return (
@@ -208,7 +209,7 @@ export default function JobDraftRefinePage({ params }: { params: { id: string } 
       setNewLanguage('');
     }
   };
-  
+
   const removeSkill = (skillName: string) => {
     setCriteria((prev: any) => ({
       ...prev,
@@ -243,15 +244,15 @@ export default function JobDraftRefinePage({ params }: { params: { id: string } 
   const handleActivateSearch = async () => {
     setIsActivating(true);
     try {
-      const result = await startJobSearch({ 
-        jobSearchId: params.id
+      const result = await startJobSearch({
+        jobSearchId: id
       });
 
       if (result.error) {
         toast.error(`Failed to activate search: ${result.error}`);
       } else if (result.runId && result.accessToken) {
         toast.success("Job search activated! Redirecting...");
-        router.push(`/dashboard/jobs/${params.id}?runId=${result.runId}&accessToken=${result.accessToken}`);
+        router.push(`/dashboard/jobs/${id}?runId=${result.runId}&accessToken=${result.accessToken}`);
       } else {
         toast.error("Failed to activate search. Invalid response from server.");
       }
@@ -338,29 +339,29 @@ export default function JobDraftRefinePage({ params }: { params: { id: string } 
                 <CardContent className="space-y-6 p-6">
                   <div className="space-y-2">
                     <Label htmlFor="jobTitle" className="text-base font-medium text-foreground">Job Title</Label>
-                    <Input 
-                      id="jobTitle" 
-                      value={criteria.title || jobSearch.title} 
-                      onChange={(e) => setCriteria((prev: any) => ({ ...prev, title: e.target.value }))} 
+                    <Input
+                      id="jobTitle"
+                      value={criteria.title || jobSearch.title}
+                      onChange={(e) => setCriteria((prev: any) => ({ ...prev, title: e.target.value }))}
                       className="text-lg font-medium h-12 bg-background/50 border-border focus:bg-background focus:border-primary"
                       placeholder="Enter job title"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label className="text-base font-medium text-foreground">Location(s)</Label>
                     <div className="flex flex-wrap gap-2 mb-3 min-h-6">
                       {(criteria.location || []).map((loc: string) => (
-                        <Badge 
-                          key={loc} 
-                          variant="secondary" 
+                        <Badge
+                          key={loc}
+                          variant="secondary"
                           className="text-sm py-1.5 pl-3 pr-2 bg-muted hover:bg-muted/80 transition-colors group text-foreground"
                         >
                           {loc}
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-5 w-5 ml-1 rounded-full opacity-60 group-hover:opacity-100 text-muted-foreground hover:text-foreground" 
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-5 w-5 ml-1 rounded-full opacity-60 group-hover:opacity-100 text-muted-foreground hover:text-foreground"
                             onClick={() => removeLocation(loc)}
                           >
                             <X className="h-3 w-3" />
@@ -372,7 +373,7 @@ export default function JobDraftRefinePage({ params }: { params: { id: string } 
                       )}
                     </div>
                     <div className="flex gap-2">
-                      <Input 
+                      <Input
                         value={newLocation}
                         onChange={(e) => setNewLocation(e.target.value)}
                         placeholder="Add location (e.g., Berlin, Remote)"
@@ -384,8 +385,8 @@ export default function JobDraftRefinePage({ params }: { params: { id: string } 
                           }
                         }}
                       />
-                      <Button 
-                        onClick={handleLocationAdd} 
+                      <Button
+                        onClick={handleLocationAdd}
                         variant="secondary"
                         disabled={!newLocation}
                       >
@@ -409,12 +410,12 @@ export default function JobDraftRefinePage({ params }: { params: { id: string } 
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Checkbox 
+                              <Checkbox
                                 checked={skill.importance === 'MUST_HAVE'}
                                 onCheckedChange={(checked) => {
                                   setCriteria((prev: any) => ({
                                     ...prev,
-                                    skills: prev.skills.map((s: any, i: number) => 
+                                    skills: prev.skills.map((s: any, i: number) =>
                                       i === index ? { ...s, importance: checked ? 'MUST_HAVE' : 'NICE_TO_HAVE' } : s
                                     )
                                   }));
@@ -423,10 +424,10 @@ export default function JobDraftRefinePage({ params }: { params: { id: string } 
                               <Label className="text-sm text-muted-foreground">Must-have</Label>
                             </div>
                           </div>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8 text-muted-foreground hover:text-foreground" 
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
                             onClick={() => removeSkill(skill.name)}
                           >
                             <X className="h-4 w-4" />
@@ -434,9 +435,9 @@ export default function JobDraftRefinePage({ params }: { params: { id: string } 
                         </div>
                       ))}
                     </div>
-                    
+
                     <div className="flex gap-2 pt-1">
-                      <Input 
+                      <Input
                         value={newSkill}
                         onChange={(e) => setNewSkill(e.target.value)}
                         placeholder="Add new skill (e.g., Python, AWS, UI/UX)"
@@ -448,8 +449,8 @@ export default function JobDraftRefinePage({ params }: { params: { id: string } 
                           }
                         }}
                       />
-                      <Button 
-                        onClick={handleSkillAdd} 
+                      <Button
+                        onClick={handleSkillAdd}
                         variant="secondary"
                         disabled={!newSkill}
                       >
@@ -457,7 +458,7 @@ export default function JobDraftRefinePage({ params }: { params: { id: string } 
                         Add Skill
                       </Button>
                     </div>
-                    
+
                     {(!criteria.skills || criteria.skills.length === 0) && (
                       <div className="flex flex-col items-center justify-center py-6 border border-dashed border-border rounded-lg bg-muted/30">
                         <PlusCircle className="h-10 w-10 text-muted-foreground mb-2" />
@@ -472,7 +473,7 @@ export default function JobDraftRefinePage({ params }: { params: { id: string } 
 
               {/* Action buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                <Button 
+                <Button
                   onClick={handleActivateSearch}
                   disabled={isActivating}
                   className="flex-1 sm:flex-none"
@@ -490,8 +491,8 @@ export default function JobDraftRefinePage({ params }: { params: { id: string } 
                     </>
                   )}
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => router.push('/dashboard/jobs')}
                   size="lg"
                 >
@@ -552,4 +553,4 @@ export default function JobDraftRefinePage({ params }: { params: { id: string } 
       </JobsDraftBackground>
     </div>
   );
-} 
+}

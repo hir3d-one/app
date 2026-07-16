@@ -41,7 +41,7 @@ interface Passkey {
 }
 
 export function PasskeysSection() {
-  const { data: passkeys, isLoading: isLoadingList } = authClient.useListPasskeys();
+  const { data: passkeys, isPending: isLoadingList } = authClient.useListPasskeys();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newPasskeyName, setNewPasskeyName] = useState("");
   const [isAdding, setIsAdding] = useState(false);
@@ -58,8 +58,7 @@ export function PasskeysSection() {
         name: newPasskeyName,
       },
       {
-        fetchOptions: {
-           onSuccess: () => {
+        onSuccess: () => {
             toast.success("Passkey added successfully. You can now use it to log in.");
             setNewPasskeyName(""); // Clear input
             setIsAddDialogOpen(false); // Close dialog
@@ -69,12 +68,9 @@ export function PasskeysSection() {
              const message = error?.error?.message || "Failed to add passkey";
             toast.error(message);
           },
-          onSettled: () => {
-             setIsAdding(false);
-          }
-        }
       }
     );
+    setIsAdding(false);
   };
 
   const handleDeletePasskey = async (passkeyId: string) => {
@@ -82,20 +78,16 @@ export function PasskeysSection() {
     await authClient.passkey.deletePasskey(
         { id: passkeyId },
         {
-           fetchOptions: {
-              onSuccess: () => {
+          onSuccess: () => {
                 toast.success("Passkey deleted successfully");
               },
               onError: (error) => {
                  const message = error?.error?.message || "Failed to delete passkey";
                  toast.error(message);
               },
-              onSettled: () => {
-                 setIsDeleting(null);
-              }
-           }
         }
     );
+    setIsDeleting(null);
   };
 
   return (
@@ -201,4 +193,4 @@ export function PasskeysSection() {
       </CardContent>
     </Card>
   );
-} 
+}

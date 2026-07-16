@@ -15,10 +15,10 @@ import { reactInvitationEmail } from "./email/invitation";
 import { reactResetPasswordEmail } from "./email/reset-password";
 import { resend } from "./email/resend";
 import { nextCookies } from "better-auth/next-js";
-import { passkey } from "better-auth/plugins/passkey";
+import { passkey } from "@better-auth/passkey";
 import { stripe } from "@better-auth/stripe";
 import { Stripe } from "stripe";
-import { apiKey } from "better-auth/plugins";
+import { apiKey } from "@better-auth/api-key";
 
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { PrismaClient as PrismaClientAuth } from "@hir3d/db-auth";
@@ -50,7 +50,7 @@ const to = process.env.TEST_EMAIL || "";
 // };
 
 export const auth = betterAuth({
-	appName: "Better Auth Demo",
+	appName: "Hir3d",
 	database: prismaAdapter(prisma, {
 		provider: "mysql",
 	}),
@@ -136,7 +136,7 @@ export const auth = betterAuth({
 								? `http://localhost:3000/accept-invitation/${data.id}`
 								: `${
 										process.env.BETTER_AUTH_URL ||
-										"https://demo.better-auth.com"
+										"https://hir3d-app.vercel.app"
 									}/accept-invitation/${data.id}`,
 					}),
 				});
@@ -223,7 +223,6 @@ export const auth = betterAuth({
 		}),
 		apiKey({
 			enableMetadata: true,
-			disableSessionForAPIKeys: true,
 		}),
 	],
 	trustedOrigins: ["exp://"],
