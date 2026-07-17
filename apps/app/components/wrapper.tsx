@@ -20,8 +20,8 @@ function BrandedShell({ children }: { children: React.ReactNode }) {
 
 	return (
 		<div className="flex min-h-screen flex-col bg-backdrop">
-			<header className="sticky top-0 z-50 border-b bg-backdrop/90 backdrop-blur-sm">
-				<div className="mx-auto grid w-full max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-3 border-x px-4 py-3">
+			<header className="public-navbar sticky top-0 z-50 border-b bg-backdrop/90 backdrop-blur-sm">
+				<div className="mx-auto grid w-full max-w-7xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 border-x px-4 py-3">
 					<Link href="/" aria-label="Hir3d recruiter portal home">
 						<Logo showName className="[&_span]:hidden sm:[&_span]:inline" />
 					</Link>
