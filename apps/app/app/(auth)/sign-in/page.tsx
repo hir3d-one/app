@@ -2,15 +2,19 @@
 
 import SignIn from "@/components/sign-in";
 import { SignUp } from "@/components/sign-up";
-import { Tabs } from "@/components/ui/tabs2";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { CheckCircle2Icon, LogIn, UserPlus } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { CheckCircle2Icon } from "lucide-react";
 
 export default function Page() {
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	const view = searchParams.get("view");
+
 	useEffect(() => {
 		authClient.oneTap({
 			fetchOptions: {
@@ -50,25 +54,45 @@ export default function Page() {
 
 				<div className="flex items-center justify-center bg-foreground/[0.015] p-5 sm:p-8">
 					<div className="w-full max-w-[400px]">
-					<Tabs
-						containerClassName="mb-2 max-w-none justify-center border-0"
-						activeTabClassName="rounded-full border bg-background shadow-sm"
-						tabClassName="min-w-28"
-						tabs={[
-							{
-								title: "Sign In",
-								value: "sign-in",
-								content: <SignIn />,
-							},
-							{
-								title: "Sign Up",
-								value: "sign-up",
-								content: <SignUp />,
-							},
-						]}
-					/>
+						<Tabs defaultValue={view === "sign-up" ? "sign-up" : "sign-in"}>
+							<ScrollArea>
+								<TabsList className="mb-2 gap-1 bg-transparent">
+									<TabsTrigger
+										value="sign-in"
+										className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none"
+									>
+										<LogIn
+											className="-ms-0.5 me-1.5 opacity-60"
+											size={16}
+											strokeWidth={2}
+											aria-hidden="true"
+										/>
+										Sign In
+									</TabsTrigger>
+									<TabsTrigger
+										value="sign-up"
+										className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none"
+									>
+										<UserPlus
+											className="-ms-0.5 me-1.5 opacity-60"
+											size={16}
+											strokeWidth={2}
+											aria-hidden="true"
+										/>
+										Sign Up
+									</TabsTrigger>
+								</TabsList>
+								<ScrollBar orientation="horizontal" />
+							</ScrollArea>
+							<TabsContent value="sign-in">
+								<SignIn />
+							</TabsContent>
+							<TabsContent value="sign-up">
+								<SignUp />
+							</TabsContent>
+						</Tabs>
+					</div>
 				</div>
-			</div>
 			</div>
 		</section>
 	);
