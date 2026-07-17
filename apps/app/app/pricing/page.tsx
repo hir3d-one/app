@@ -14,7 +14,7 @@ const demoPlans = [
 		],
 		description: "Perfect for individuals and small projects",
 		buttonText: "Start Free Trial",
-		href: "/sign-up",
+		href: "/sign-in?view=sign-up",
 		isPopular: false,
 	},
 	{
@@ -31,7 +31,7 @@ const demoPlans = [
 		],
 		description: "Ideal for growing teams and businesses",
 		buttonText: "Get Started",
-		href: "/sign-up",
+		href: "/sign-in?view=sign-up",
 		isPopular: true,
 	},
 	{
@@ -49,7 +49,7 @@ const demoPlans = [
 		],
 		description: "For large organizations with specific needs",
 		buttonText: "Contact Sales",
-		href: "/contact",
+		href: "https://hir3d-web.vercel.app/contact",
 		isPopular: false,
 	},
 ];
