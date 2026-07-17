@@ -9,9 +9,11 @@ import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { Button } from "./ui/button";
 
+const WEB_URL = "https://hir3d-web.vercel.app";
+
 const navLinks = [
-	{ href: "https://hir3d-web.vercel.app", label: "Company", icon: Building2Icon },
-	{ href: "/pricing", label: "Pricing", icon: CreditCardIcon },
+	{ href: WEB_URL, label: "Company", icon: Building2Icon, external: true },
+	{ href: "/pricing", label: "Pricing", icon: CreditCardIcon, external: false },
 ];
 
 const headerNavButtonClassName = "w-10 px-0 md:w-24 md:px-4";
@@ -30,18 +32,26 @@ function BrandedShell({ children }: { children: React.ReactNode }) {
 					</Link>
 
 					<nav aria-label="Main" className="flex items-center justify-center">
-						{navLinks.map(({ href, label, icon: Icon }) => (
+						{navLinks.map(({ href, label, icon: Icon, external }) => (
 							<Button
 								key={href}
 								variant="ghost"
 								className={headerNavButtonClassName}
 								asChild
 							>
-								<Link href={href}>
-									<Icon className="h-4 w-4 md:hidden" aria-hidden="true" />
-									<span className="hidden md:inline">{label}</span>
-									<span className="sr-only md:hidden">{label}</span>
-								</Link>
+								{external ? (
+									<a href={href}>
+										<Icon className="h-4 w-4 md:hidden" aria-hidden="true" />
+										<span className="hidden md:inline">{label}</span>
+										<span className="sr-only md:hidden">{label}</span>
+									</a>
+								) : (
+									<Link href={href}>
+										<Icon className="h-4 w-4 md:hidden" aria-hidden="true" />
+										<span className="hidden md:inline">{label}</span>
+										<span className="sr-only md:hidden">{label}</span>
+									</Link>
+								)}
 							</Button>
 						))}
 					</nav>
@@ -78,21 +88,6 @@ function BrandedShell({ children }: { children: React.ReactNode }) {
 	);
 }
 
-function LegacyShell({ children }: { children: React.ReactNode }) {
-	return (
-		<div className="relative flex min-h-screen w-full justify-center bg-white bg-grid-small-black/[0.2] dark:bg-black dark:bg-grid-small-white/[0.2]">
-			<div className="pointer-events-none absolute inset-0 hidden items-center justify-center bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] md:flex dark:bg-black" />
-			<div className="absolute z-50 flex w-full items-center justify-between border-b border-border bg-white px-4 py-2 lg:w-8/12 md:px-1 dark:bg-black">
-				<Link href="/">
-					<Logo showName />
-				</Link>
-				<ThemeToggle />
-			</div>
-			<div className="mt-20 w-full lg:w-7/12">{children}</div>
-		</div>
-	);
-}
-
 export function Wrapper({ children }: { children: React.ReactNode }) {
 	const pathname = usePathname();
 
@@ -100,11 +95,7 @@ export function Wrapper({ children }: { children: React.ReactNode }) {
 		return children;
 	}
 
-	if (pathname === "/" || pathname === "/sign-in") {
-		return <BrandedShell>{children}</BrandedShell>;
-	}
-
-	return <LegacyShell>{children}</LegacyShell>;
+	return <BrandedShell>{children}</BrandedShell>;
 }
 
 const queryClient = new QueryClient();
