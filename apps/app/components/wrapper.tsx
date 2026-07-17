@@ -49,12 +49,15 @@ const footerLegalLinks = [
 	{ name: "Privacy policy", href: `${sites.web}/legal/privacy` },
 ];
 
-const headerNavButtonClassName = "w-10 px-0 md:w-20 md:px-4";
-const headerActionButtonClassName = "w-9 px-0 sm:w-36 sm:px-4";
+const headerNavButtonClassName =
+	"h-9 w-9 shrink-0 gap-0 px-0 md:w-auto md:px-3";
+const headerActionButtonClassName =
+	"h-9 w-9 shrink-0 gap-2 px-0 sm:w-auto sm:min-w-[8.5rem] sm:px-4";
 
 function BrandedShell({ children }: { children: React.ReactNode }) {
 	const { data: session } = useSession();
 	const accountHref = session?.session ? "/dashboard/account" : "/sign-in";
+	const accountLabel = session?.session ? "Dashboard" : "Sign in";
 
 	return (
 		<div className="flex min-h-screen flex-col bg-backdrop">
@@ -64,7 +67,10 @@ function BrandedShell({ children }: { children: React.ReactNode }) {
 						<Logo showName className="[&_span]:hidden sm:[&_span]:inline" />
 					</Link>
 
-					<nav aria-label="Main" className="flex items-center justify-center">
+					<nav
+						aria-label="Main"
+						className="flex items-center justify-center gap-0.5 md:gap-1"
+					>
 						{navLinks.map(({ href, label, icon: Icon, external }) => (
 							<Button
 								key={label}
@@ -73,16 +79,14 @@ function BrandedShell({ children }: { children: React.ReactNode }) {
 								asChild
 							>
 								{external ? (
-									<a href={href}>
-										<Icon className="h-4 w-4 md:hidden" aria-hidden="true" />
+									<a href={href} aria-label={label}>
+										<Icon className="size-4 md:hidden" aria-hidden="true" />
 										<span className="hidden md:inline">{label}</span>
-										<span className="sr-only md:hidden">{label}</span>
 									</a>
 								) : (
-									<Link href={href}>
-										<Icon className="h-4 w-4 md:hidden" aria-hidden="true" />
+									<Link href={href} aria-label={label}>
+										<Icon className="size-4 md:hidden" aria-hidden="true" />
 										<span className="hidden md:inline">{label}</span>
-										<span className="sr-only md:hidden">{label}</span>
 									</Link>
 								)}
 							</Button>
@@ -91,10 +95,9 @@ function BrandedShell({ children }: { children: React.ReactNode }) {
 
 					<div className="flex items-center justify-end gap-1">
 						<Button className={headerActionButtonClassName} asChild>
-							<Link href={accountHref}>
-								<span className="hidden sm:inline">{session?.session ? "Dashboard" : "Sign in"}</span>
-								<ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
-								<span className="sr-only sm:hidden">{session?.session ? "Dashboard" : "Sign in"}</span>
+							<Link href={accountHref} aria-label={accountLabel}>
+								<span className="hidden sm:inline">{accountLabel}</span>
+								<ArrowRightIcon className="size-4" aria-hidden="true" />
 							</Link>
 						</Button>
 						<ThemeToggle />
