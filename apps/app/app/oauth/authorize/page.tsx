@@ -1,5 +1,6 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
+import { createMetadata } from "@/lib/metadata";
 import { headers } from "next/headers";
 import { ArrowLeftRight, ArrowUpRight, Mail, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,10 +9,10 @@ import { Logo } from "@/components/logo";
 import Image from "next/image";
 import { ConsentBtns } from "./concet-buttons";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createMetadata({
 	title: "Authorize Application",
 	description: "Grant access to your account",
-};
+});
 
 interface AuthorizePageProps {
 	searchParams: Promise<{
