@@ -9,11 +9,11 @@ export async function SignInButton() {
 	});
 
 	return (
-		<Link
-			href={session?.session ? "/dashboard/account" : "/sign-in"}
-			className="flex justify-center"
-		>
-			<Button className="gap-2  justify-between" variant="default">
+		<Button asChild className="gap-2 justify-between" variant="default">
+			<Link
+				href={session?.session ? "/dashboard/account" : "/sign-in"}
+				className="flex justify-center"
+			>
 				{!session?.session ? (
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -37,8 +37,8 @@ export async function SignInButton() {
 					</svg>
 				)}
 				<span>{session?.session ? "Account" : "Sign In"}</span>
-			</Button>
-		</Link>
+			</Link>
+		</Button>
 	);
 }
 
@@ -53,11 +53,11 @@ export async function SignInFallback() {
 	//to avoid flash of unauthenticated state
 	const guessIsSignIn = checkOptimisticSession(await headers());
 	return (
-		<Link
-			href={guessIsSignIn ? "/dashboard/account" : "/sign-in"}
-			className="flex justify-center"
-		>
-			<Button className="gap-2  justify-between" variant="default">
+		<Button asChild className="gap-2 justify-between" variant="default">
+			<Link
+				href={guessIsSignIn ? "/dashboard/account" : "/sign-in"}
+				className="flex justify-center"
+			>
 				{!guessIsSignIn ? (
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -81,7 +81,7 @@ export async function SignInFallback() {
 					</svg>
 				)}
 				<span>{guessIsSignIn ? "Account" : "Sign In"}</span>
-			</Button>
-		</Link>
+			</Link>
+		</Button>
 	);
 }
