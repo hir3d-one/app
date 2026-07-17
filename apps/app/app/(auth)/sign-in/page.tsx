@@ -7,10 +7,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authClient } from "@/lib/auth-client";
 import { CheckCircle2Icon, LogIn, UserPlus } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { toast } from "sonner";
 
-export default function Page() {
+function SignInPageContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const view = searchParams.get("view");
@@ -95,5 +95,13 @@ export default function Page() {
 				</div>
 			</div>
 		</section>
+	);
+}
+
+export default function Page() {
+	return (
+		<Suspense fallback={null}>
+			<SignInPageContent />
+		</Suspense>
 	);
 }
