@@ -1,22 +1,55 @@
 "use client";
 
 import { useSession } from "@/lib/auth-client";
+import { sites } from "@/lib/sites";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ArrowRightIcon, Building2Icon, CreditCardIcon } from "lucide-react";
+import {
+	ArrowRightIcon,
+	Building2Icon,
+	CreditCardIcon,
+	MessageSquareIcon,
+	UploadCloudIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { Button } from "./ui/button";
 
-const WEB_URL = "https://hir3d-web.vercel.app";
-
 const navLinks = [
-	{ href: WEB_URL, label: "Company", icon: Building2Icon, external: true },
-	{ href: "/pricing", label: "Pricing", icon: CreditCardIcon, external: false },
+	{ href: sites.web, label: "Company", icon: Building2Icon, external: true },
+	{
+		href: `${sites.upload}/upload?ref=nav`,
+		label: "Upload",
+		icon: UploadCloudIcon,
+		external: true,
+	},
+	{
+		href: `${sites.web}/pricing`,
+		label: "Pricing",
+		icon: CreditCardIcon,
+		external: true,
+	},
+	{
+		href: `${sites.web}/contact`,
+		label: "Contact",
+		icon: MessageSquareIcon,
+		external: true,
+	},
 ];
 
-const headerNavButtonClassName = "w-10 px-0 md:w-24 md:px-4";
+const footerProductLinks = [
+	{ name: "Company", href: sites.web },
+	{ name: "Upload", href: `${sites.upload}/upload?ref=nav` },
+	{ name: "Pricing", href: `${sites.web}/pricing` },
+	{ name: "Contact", href: `${sites.web}/contact` },
+];
+
+const footerLegalLinks = [
+	{ name: "Privacy policy", href: `${sites.web}/legal/privacy` },
+];
+
+const headerNavButtonClassName = "w-10 px-0 md:w-20 md:px-4";
 const headerActionButtonClassName = "w-9 px-0 sm:w-36 sm:px-4";
 
 function BrandedShell({ children }: { children: React.ReactNode }) {
@@ -34,7 +67,7 @@ function BrandedShell({ children }: { children: React.ReactNode }) {
 					<nav aria-label="Main" className="flex items-center justify-center">
 						{navLinks.map(({ href, label, icon: Icon, external }) => (
 							<Button
-								key={href}
+								key={label}
 								variant="ghost"
 								className={headerNavButtonClassName}
 								asChild
@@ -74,14 +107,42 @@ function BrandedShell({ children }: { children: React.ReactNode }) {
 			</main>
 
 			<footer className="border-t bg-backdrop">
-				<div className="mx-auto flex w-full max-w-7xl flex-col gap-5 border-x px-4 py-8 sm:flex-row sm:items-center sm:justify-between">
-					<div>
+				<div className="mx-auto grid w-full max-w-7xl grid-cols-2 gap-10 border-x px-4 py-10 sm:grid-cols-4">
+					<div className="col-span-2 flex flex-col items-start gap-4">
 						<Link href="/" className="inline-flex">
 							<Logo showName />
 						</Link>
-						<p className="mt-2 text-sm text-muted-foreground">AI-assisted recruiting and candidate discovery.</p>
+						<p className="max-w-xs text-sm text-muted-foreground">
+							AI-assisted recruiting and candidate discovery.
+						</p>
+						<p className="text-sm text-muted-foreground">
+							&copy; Hir3d {new Date().getFullYear()}. All rights reserved.
+						</p>
 					</div>
-					<p className="text-sm text-muted-foreground">&copy; Hir3d {new Date().getFullYear()}. All rights reserved.</p>
+					<div className="flex flex-col gap-3 text-sm">
+						<p className="font-medium">Product</p>
+						{footerProductLinks.map((link) => (
+							<a
+								key={link.name}
+								href={link.href}
+								className="text-muted-foreground transition-colors hover:text-foreground"
+							>
+								{link.name}
+							</a>
+						))}
+					</div>
+					<div className="flex flex-col gap-3 text-sm">
+						<p className="font-medium">Legal</p>
+						{footerLegalLinks.map((link) => (
+							<a
+								key={link.name}
+								href={link.href}
+								className="text-muted-foreground transition-colors hover:text-foreground"
+							>
+								{link.name}
+							</a>
+						))}
+					</div>
 				</div>
 			</footer>
 		</div>

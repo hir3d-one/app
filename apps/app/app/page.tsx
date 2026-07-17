@@ -1,5 +1,6 @@
 import { SignInButton, SignInFallback } from "@/components/sign-in-btn";
 import { Button } from "@/components/ui/button";
+import { sites } from "@/lib/sites";
 import {
 	ArrowUpRightIcon,
 	BarChart3Icon,
@@ -52,7 +53,7 @@ export default async function Home() {
 				<div className="rounded-xl border bg-background px-6 py-16 text-center shadow-sm sm:px-12 sm:py-24 lg:py-28">
 					<div className="mx-auto flex max-w-5xl flex-col items-center">
 						<Link
-							href="https://hir3d-web.vercel.app"
+							href={sites.web}
 							className="flex max-w-full items-center gap-2 rounded-full border bg-foreground/[0.03] px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
 						>
 							<span className="truncate">The recruiter workspace from HIR3D</span>
@@ -71,7 +72,7 @@ export default async function Home() {
 								</Suspense>
 							</div>
 							<Button variant="outline" size="lg" asChild>
-								<Link href="https://hir3d-web.vercel.app">Explore HIR3D</Link>
+								<Link href={sites.web}>Explore HIR3D</Link>
 							</Button>
 						</div>
 					</div>
