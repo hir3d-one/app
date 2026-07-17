@@ -4,15 +4,11 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import { Wrapper, WrapperWithQuery } from "@/components/wrapper";
-import { createMetadata } from "@/lib/metadata";
+import { createMetadata, organizationJsonLd } from "@/lib/metadata";
 
 export const metadata = createMetadata({
-	title: {
-		template: "%s | Hir3d",
-		default: "Hir3d Recruiter Portal",
-	},
+	title: "Recruiter Portal",
 	description: "AI-assisted recruiting, candidate discovery, and hiring workflows.",
-	metadataBase: new URL("https://hir3d-app.vercel.app"),
 });
 
 export default function RootLayout({
@@ -23,7 +19,10 @@ export default function RootLayout({
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<head>
-				<link rel="icon" href="/favicon/favicon.ico" sizes="any" />
+				<script
+					type="application/ld+json"
+					dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+				/>
 			</head>
 			<body className={`${GeistSans.variable} ${GeistMono.variable} font-sans`}>
 				<ThemeProvider attribute="class" defaultTheme="dark">
