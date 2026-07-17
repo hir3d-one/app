@@ -14,6 +14,9 @@ const navLinks = [
 	{ href: "/pricing", label: "Pricing", icon: CreditCardIcon },
 ];
 
+const headerNavButtonClassName = "w-10 px-0 md:w-24 md:px-4";
+const headerActionButtonClassName = "w-9 px-0 sm:w-28 sm:px-4";
+
 function BrandedShell({ children }: { children: React.ReactNode }) {
 	const { data: session } = useSession();
 	const accountHref = session?.session ? "/dashboard/account" : "/sign-in";
@@ -28,7 +31,12 @@ function BrandedShell({ children }: { children: React.ReactNode }) {
 
 					<nav aria-label="Main" className="flex items-center justify-center">
 						{navLinks.map(({ href, label, icon: Icon }) => (
-							<Button key={href} variant="ghost" asChild>
+							<Button
+								key={href}
+								variant="ghost"
+								className={headerNavButtonClassName}
+								asChild
+							>
 								<Link href={href}>
 									<Icon className="h-4 w-4 md:hidden" aria-hidden="true" />
 									<span className="hidden md:inline">{label}</span>
@@ -39,7 +47,7 @@ function BrandedShell({ children }: { children: React.ReactNode }) {
 					</nav>
 
 					<div className="flex items-center justify-end gap-1">
-						<Button asChild>
+						<Button className={headerActionButtonClassName} asChild>
 							<Link href={accountHref}>
 								<span className="hidden sm:inline">{session?.session ? "Dashboard" : "Sign in"}</span>
 								<ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
