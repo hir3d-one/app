@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { DeprecationBanner } from "./deprecation-banner";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { Button } from "./ui/button";
@@ -61,7 +62,9 @@ function BrandedShell({ children }: { children: React.ReactNode }) {
 
 	return (
 		<div className="flex min-h-screen flex-col bg-backdrop">
-			<header className="public-navbar sticky top-0 z-50 border-b bg-backdrop/90 backdrop-blur-sm">
+			<div className="sticky top-0 z-50">
+				<DeprecationBanner />
+				<header className="public-navbar border-b bg-backdrop/90 backdrop-blur-sm">
 				<div className="mx-auto grid w-full max-w-7xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 border-x px-4 py-3">
 					<Link href="/" aria-label="Hir3d recruiter portal home">
 						<Logo showName className="[&_span]:hidden sm:[&_span]:inline" />
@@ -103,7 +106,8 @@ function BrandedShell({ children }: { children: React.ReactNode }) {
 						<ThemeToggle />
 					</div>
 				</div>
-			</header>
+				</header>
+			</div>
 
 			<main className="mx-auto w-full max-w-7xl flex-1 border-x bg-background">
 				{children}
@@ -156,7 +160,14 @@ export function Wrapper({ children }: { children: React.ReactNode }) {
 	const pathname = usePathname();
 
 	if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) {
-		return children;
+		return (
+			<>
+				<div className="sticky top-0 z-[60]">
+					<DeprecationBanner />
+				</div>
+				{children}
+			</>
+		);
 	}
 
 	return <BrandedShell>{children}</BrandedShell>;
