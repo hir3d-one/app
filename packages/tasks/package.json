@@ -1,6 +1,7 @@
 {
   "name": "@hir3d/tasks",
   "version": "0.0.0",
+  "private": true,
   "scripts": {
     "dev": "pnpm dlx trigger.dev@latest dev"
   },

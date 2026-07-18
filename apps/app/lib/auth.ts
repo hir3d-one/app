@@ -9,7 +9,6 @@ import {
 	oAuthProxy,
 	openAPI,
 	oidcProvider,
-	customSession,
 } from "better-auth/plugins";
 import { reactInvitationEmail } from "./email/invitation";
 import { reactResetPasswordEmail } from "./email/reset-password";
@@ -35,7 +34,13 @@ import {
 } from "./config/plans"; // Import plans
 
 const from = process.env.BETTER_AUTH_EMAIL || "delivered@resend.dev";
-const to = process.env.TEST_EMAIL || "";
+// TEST_EMAIL redirects verification mail in non-production only (safer for showcase deploys)
+const to =
+	process.env.NODE_ENV !== "production" ? process.env.TEST_EMAIL || "" : "";
+const adminUserIds = (process.env.BETTER_AUTH_ADMIN_USER_IDS || "")
+	.split(",")
+	.map((id) => id.trim())
+	.filter(Boolean);
 
 
 
@@ -56,13 +61,12 @@ export const auth = betterAuth({
 	}),
 	emailVerification: {
 		async sendVerificationEmail({ user, url }: { user: { email: string }, url: string }) {
-			const res = await resend.emails.send({
+			await resend.emails.send({
 				from,
 				to: to || user.email,
 				subject: "Verify your email address",
 				html: `<a href="${url}">Verify your email address</a>`,
 			});
-			console.log(res, user.email);
 		},
 	},
 	account: {
@@ -158,7 +162,7 @@ export const auth = betterAuth({
 		openAPI(),
 		bearer(),
 		admin({
-			adminUserIds: ["EXD5zjob2SD6CBWcEQ6OpLRHcyoUbnaB"],
+			adminUserIds,
 		}),
 		multiSession(),
 		oAuthProxy(),
@@ -167,15 +171,6 @@ export const auth = betterAuth({
 			loginPage: "/sign-in",
 		}),
 		oneTap(),
-		customSession(async (session: any) => {
-			return {
-				...session,
-				user: {
-					...session.user,
-					dd: "test",
-				},
-			};
-		}),
 		stripe({
 			stripeClient: new Stripe(process.env.STRIPE_KEY || "sk_test_"),
 			stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,

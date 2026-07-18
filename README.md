@@ -66,6 +66,12 @@ packages/tasks            Trigger.dev tasks
 
 Linked to the `hir3d-app` Vercel project. Builds from the repo root with Node.js 22 and pnpm 11. Production env vars should match the checked-in `.env.example` files.
 
+Set `BETTER_AUTH_ADMIN_USER_IDS` to a comma-separated list of Better Auth user IDs that should have admin access. Leave it empty for public clones (default: no admins).
+
+## License
+
+MIT — see [LICENSE](./LICENSE).
+
 ## Related repositories
 
 | Repo | Role |
