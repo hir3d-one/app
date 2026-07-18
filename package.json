@@ -1,5 +1,5 @@
 {
-  "name": "hir3d",
+  "name": "@hir3d/root",
   "private": true,
   "scripts": {
     "build": "turbo run build",

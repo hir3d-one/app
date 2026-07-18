@@ -1,12 +1,8 @@
 # Hir3d App
 
-The main Hir3d recruitment application. It lets recruiters create AI-assisted
-job searches, review candidates, manage organizations and API keys, and monitor
-background jobs.
+Recruiter-facing Hir3d application for AI-assisted job searches, candidate review, organization management, API keys, and background job monitoring.
 
-This is a maintained portfolio project. The original `hir3d.one` domain is no
-longer active; the current deployment is
-[hir3d-app.vercel.app](https://hir3d-app.vercel.app).
+Maintained portfolio project. The original `hir3d.one` domain is inactive; the live deployment is [hir3d-app.vercel.app](https://hir3d-app.vercel.app).
 
 ## Stack
 
@@ -21,9 +17,8 @@ longer active; the current deployment is
 ## Requirements
 
 - Node.js 22
-- pnpm 11.13.1 (declared through Corepack)
-- Database, authentication, AI, email, Stripe, and Trigger.dev credentials for
-  the features you plan to use
+- pnpm 11.13.1 (via Corepack)
+- Credentials for the database, auth, AI, email, Stripe, and Trigger.dev features you use
 
 ## Local development
 
@@ -34,18 +29,14 @@ cp .env.example .env
 cp apps/app/.env.example apps/app/.env.local
 ```
 
-Fill in the required values in the copied environment files, then generate and
-migrate the Prisma clients:
+Fill in the environment files, then:
 
 ```bash
 pnpm db:migrate
 pnpm dev
 ```
 
-The web application runs at [localhost:3000](http://localhost:3000). The root
-development command also starts the two Prisma Studio instances, Trigger.dev,
-and the Stripe webhook listener, so their respective CLIs and credentials must
-be available. To run only the web application:
+App: [localhost:3000](http://localhost:3000). The root `dev` script also starts Prisma Studio, Trigger.dev, and the Stripe webhook listener. Web app only:
 
 ```bash
 pnpm --filter @hir3d/app dev
@@ -55,11 +46,11 @@ pnpm --filter @hir3d/app dev
 
 | Command | Purpose |
 | --- | --- |
-| `pnpm build` | Build all workspace packages with Turborepo |
+| `pnpm build` | Build all workspace packages |
 | `pnpm lint` | Lint the workspace |
-| `pnpm check-types` | Run TypeScript checks |
-| `pnpm db:migrate` | Generate clients and run both Prisma migrations |
-| `pnpm format` | Format TypeScript and Markdown files |
+| `pnpm check-types` | TypeScript checks |
+| `pnpm db:migrate` | Generate clients and run Prisma migrations |
+| `pnpm format` | Format TypeScript and Markdown |
 
 ## Workspace
 
@@ -73,7 +64,12 @@ packages/tasks            Trigger.dev tasks
 
 ## Deployment
 
-The repository is linked to the `hir3d-app` Vercel project. Vercel builds the
-workspace from the repository root with Node.js 22 and pnpm 11. The production
-environment must contain the values represented by the checked-in
-`.env.example` files.
+Linked to the `hir3d-app` Vercel project. Builds from the repo root with Node.js 22 and pnpm 11. Production env vars should match the checked-in `.env.example` files.
+
+## Related repositories
+
+| Repo | Role |
+| --- | --- |
+| [hir3d-one/web](https://github.com/hir3d-one/web) | Marketing / portfolio site |
+| [hir3d-one/upload](https://github.com/hir3d-one/upload) | Candidate CV upload portal |
+| [hir3d-one/cli](https://github.com/hir3d-one/cli) | Dev CLI for ingestion and search |
