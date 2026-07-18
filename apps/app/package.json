@@ -26,6 +26,7 @@
     "@hir3d/tasks": "workspace:*",
     "@hookform/resolvers": "^5.4.0",
     "@number-flow/react": "^0.5.14",
+    "@openpanel/nextjs": "^1.5.1",
     "@prisma/adapter-libsql": "^6.19.3",
     "@prisma/client": "^6.19.3",
     "@radix-ui/react-accordion": "^1.2.16",

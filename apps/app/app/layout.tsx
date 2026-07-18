@@ -5,6 +5,7 @@ import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import { Wrapper, WrapperWithQuery } from "@/components/wrapper";
 import { createMetadata, organizationJsonLd } from "@/lib/metadata";
+import { OpenPanelComponent } from "@openpanel/nextjs";
 
 export const metadata = createMetadata({
 	title: "Recruiter Portal",
@@ -25,6 +26,14 @@ export default function RootLayout({
 				/>
 			</head>
 			<body className={`${GeistSans.variable} ${GeistMono.variable} font-sans`}>
+				{process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID ? (
+					<OpenPanelComponent
+						clientId={process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID}
+						trackScreenViews
+						trackOutgoingLinks
+						trackAttributes
+					/>
+				) : null}
 				<ThemeProvider attribute="class" defaultTheme="dark">
 					<Wrapper>
 						<WrapperWithQuery>{children}</WrapperWithQuery>
