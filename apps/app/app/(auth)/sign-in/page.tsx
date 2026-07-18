@@ -4,30 +4,13 @@ import SignIn from "@/components/sign-in";
 import { SignUp } from "@/components/sign-up";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { authClient } from "@/lib/auth-client";
 import { CheckCircle2Icon, LogIn, UserPlus } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect } from "react";
-import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 function SignInPageContent() {
-	const router = useRouter();
 	const searchParams = useSearchParams();
 	const view = searchParams.get("view");
-
-	useEffect(() => {
-		authClient.oneTap({
-			fetchOptions: {
-				onError: ({ error }) => {
-					toast.error(error.message || "An error occurred");
-				},
-				onSuccess: () => {
-					toast.success("Successfully signed in");
-					router.push("/dashboard/account");
-				},
-			},
-		});
-	}, [router]);
 
 	return (
 		<section className="p-4">
